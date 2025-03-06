@@ -2,12 +2,12 @@
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using static MvCamCtrl.NET.MyCamera;
 
 namespace JidamVision.Grab
 {
@@ -16,7 +16,7 @@ namespace JidamVision.Grab
         private VideoCapture _capture = null;
         private Mat _frame = null;
 
-        #region Private Field
+        #region 
         private bool _disposed = false;
         #endregion
 
@@ -32,7 +32,7 @@ namespace JidamVision.Grab
             return true;
         }
 
-        internal override bool Grab(int bufferIndex, bool waitDone)
+        internal override bool Grab(int bufferIndex, bool waitDone) // 웹캠에는 콜백함수가 없어서 그랩에서 콜백 기능을 하도록 추가함.
         {
             if (_frame is null)
                 _frame = new Mat();
@@ -64,6 +64,7 @@ namespace JidamVision.Grab
                     if (BufferIndex >= _userImageBuffer.Count())
                         BufferIndex = 0;
                 }
+
             }
             return true;
         }
@@ -72,7 +73,7 @@ namespace JidamVision.Grab
         {
             if (_capture != null)
                 _capture.Release();
-            
+
             return true;
         }
 
@@ -89,9 +90,10 @@ namespace JidamVision.Grab
 
             // BGR 포맷을 강제 설정 (산업용 카메라나 특정 드라이버에 따라 가능)
 
-            // BGR24 포맷 (컬러)
+            // BGR24 포맷 (컬러) -- GPT답변
             int fourccBGR3 = VideoWriter.FourCC('B', 'G', 'R', '3');
             _capture.Set(VideoCaptureProperties.CodecPixelFormat, fourccBGR3);
+
 
 
             return true;
@@ -103,6 +105,7 @@ namespace JidamVision.Grab
             return Open();
         }
 
+
         internal override bool GetPixelBpp(out int pixelBpp)
         {
             pixelBpp = 8;
@@ -111,57 +114,19 @@ namespace JidamVision.Grab
                 return false;
 
             if (_frame is null)
+
             {
                 _frame = new Mat();
-                _capture.Read(_frame); // 프레임 캡처
+                _capture.Read(_frame); // 프레임 
             }
 
-            pixelBpp = _frame.ElemSize() * 8; // 픽셀당 비트수 계산
+            pixelBpp = _frame.ElemSize() * 8; // 픽셀 당 비트수 계산
 
             return true;
         }
-        #endregion
+#endregion
 
         #region Parameter Setting
-        internal override bool SetExposureTime(long exposure)
-        {
-            if (_capture == null)
-                return false;
-
-            _capture.Set(VideoCaptureProperties.Exposure, exposure);
-            return true;
-        }
-
-        internal override bool GetExposureTime(out long exposure)
-        {
-            exposure = 0;
-
-            if (_capture == null)
-                return false; 
-            
-            exposure = (long)_capture.Get(VideoCaptureProperties.Exposure);
-            return true;
-        }
-
-        internal override bool SetGain(long gain)
-        {
-            if (_capture == null)
-                return false;
-         
-            _capture.Set(VideoCaptureProperties.Gain, gain);
-            return true;
-        }
-
-        internal override bool GetGain(out long gain)
-        {
-            gain = 0;
-            if (_capture == null)
-                return false;
-
-            gain = (long)_capture.Get(VideoCaptureProperties.Gain);
-            return true;
-        }
-
         internal override bool GetResolution(out int width, out int height, out int stride)
         {
             width = 0;
@@ -176,7 +141,6 @@ namespace JidamVision.Grab
 
             int bpp = 8;
             GetPixelBpp(out bpp);
-
             if (bpp == 8)
                 stride = width * 1;
             else
@@ -185,45 +149,48 @@ namespace JidamVision.Grab
             return true;
         }
 
-        internal override bool SetTriggerMode(bool hardwareTrigger)
+        // 2/27 오전 진도 ---> 여기부터
+        internal override bool SetExposureTime(long exposure)
         {
-            if (_capture is null)
+            if (_capture == null)
                 return false;
 
-            HardwareTrigger = hardwareTrigger;
-
+            _capture.Set(VideoCaptureProperties.Exposure, exposure);
             return true;
         }
 
-        internal override bool InitGrab()
+        internal override bool GetExposureTime(out long exposure)
         {
-            if (!Create())
+            exposure = 0;
+
+            if (_capture == null)
                 return false;
 
-            if (!Open())
-                return false;
-
+            exposure = (long)_capture.Get(VideoCaptureProperties.Exposure);
             return true;
         }
 
-        internal override bool InitBuffer(int bufferCount = 1)
+        internal override bool SetGain(long gain)
         {
-            if (bufferCount < 1)
+            if (_capture == null)
                 return false;
 
-            _userImageBuffer = new GrabUserBuffer[bufferCount];
+            _capture.Set(VideoCaptureProperties.Gain, gain);
             return true;
         }
 
-        internal override bool SetBuffer(byte[] buffer, IntPtr bufferPtr, GCHandle bufferHandle, int bufferIndex = 0)
+        internal override bool GetGain(out long gain)
         {
-            _userImageBuffer[bufferIndex].ImageBuffer = buffer;
-            _userImageBuffer[bufferIndex].ImageBufferPtr = bufferPtr;
-            _userImageBuffer[bufferIndex].ImageHandle = bufferHandle;
+            gain = 0;
 
+            if (_capture == null)
+                return false;
+
+            gain = (long)_capture.Get(VideoCaptureProperties.Gain);
             return true;
         }
         #endregion
+        // 2/27 오전 진도 <----- 여기까지
 
         #region Dispose
         internal override void Dispose()
@@ -250,4 +217,6 @@ namespace JidamVision.Grab
         }
         #endregion
     }
+
 }
+

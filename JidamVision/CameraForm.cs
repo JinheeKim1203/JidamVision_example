@@ -23,7 +23,26 @@ namespace JidamVision
         {
             if (bitmap == null)
             {
-                bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0);
+                if (rbtnRedChannel.Checked)
+                {
+                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Red);
+                }
+                else if (rbtnGreenChannel.Checked)
+                {
+                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Green);
+                }
+                else if (rbtnBlueChannel.Checked)
+                {
+                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Blue);
+                }
+                else if (rbtnGrayChannel.Checked)
+                {
+                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Gray);
+                }
+                else
+                {
+                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0);
+                }
                 if (bitmap == null)
                     return;
             }
@@ -33,11 +52,34 @@ namespace JidamVision
 
         private void CameraForm_Resize(object sender, EventArgs e)
         {
+            int margin = 10;
+
+            int xPos = Location.X + this.Width - btnGrab.Width - margin;
+
+            btnGrab.Location = new Point(xPos, btnGrab.Location.Y);
+            btnLive.Location = new Point(xPos, btnLive.Location.Y);
+            grpChannel.Location = new Point(xPos, grpChannel.Location.Y);
+
+            imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
+            imageViewer.Height = this.Height - margin * 2;
+
+            imageViewer.Location = new Point(margin, margin);
         }
 
         private void btnGrab_Click(object sender, EventArgs e)
         {
             Global.Inst.InspStage.Grab(0);
         }
+
+        private void btnLive_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.LiveMode = !Global.Inst.InspStage.LiveMode;
+
+            if (Global.Inst.InspStage.LiveMode)
+                Global.Inst.InspStage.Grab(0);
+         
+        }
+
+
     }
 }
