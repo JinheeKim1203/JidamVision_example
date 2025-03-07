@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MvCamCtrl.NET;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static MvCamCtrl.NET.MyCamera;
 
 namespace JidamVision.Grab
 {
@@ -11,8 +13,9 @@ namespace JidamVision.Grab
     {
         None = 0,
         WebCam,
-        HikVision
+        HikRobotCam
     }
+
     struct GrabUserBuffer
     {
         private byte[] _imageBuffer;
@@ -53,40 +56,31 @@ namespace JidamVision.Grab
             }
         }
     }
-
+    
     internal abstract class GrabModel
     {
-        //유저버퍼 올리기
-        // 콜백 필요하긴 하나 hik와 웹캠은 콜백  방식이 다르므로 올리진 않음
-        // 카메라 기능적인 부분은 대부분 올리면 됨
-        // 다른 자식클래서에서 없을수도 있는 기능은 virtual로 만들기
-
         public delegate void GrabEventHandler<T>(object sender, T obj = null) where T : class;
 
         public event GrabEventHandler<object> GrabCompleted;
         public event GrabEventHandler<object> TransferCompleted;
 
         protected GrabUserBuffer[] _userImageBuffer = null;
-
-        protected string _strIpAddr = "";
         public int BufferIndex { get; set; } = 0;
 
-        internal bool HardwareTrigger { get; set; } = false;
+        protected string _strIpAddr = "";
 
+        internal bool HardwareTrigger { get; set; } = false;
         internal bool IncreaseBufferIndex { get; set; } = false;
 
-        internal abstract bool Create(string strIpAddr = null); // 카메라 생성할때 IP주소를 입력 받음 : 여러개의 카메라를 사용할때 사용
-        // string strIpAddr = null  -->  기본값을 설정
-        internal abstract bool Grab(int bufferIndex, bool waitDone = true);
+        internal abstract bool Create(string strIpAddr = null);
 
-        internal abstract bool Open();
+        internal abstract bool Grab(int bufferIndex, bool waitDone = true);
 
         internal abstract bool Close();
 
-        internal virtual bool Reconnect()
-        {
-            return false;
-        }
+        internal abstract bool Open();
+
+        internal virtual bool Reconnect() { return true; }
 
         internal abstract bool GetPixelBpp(out int pixelBpp);
 
@@ -101,6 +95,7 @@ namespace JidamVision.Grab
         internal abstract bool GetResolution(out int width, out int height, out int stride);
 
         internal virtual bool SetTriggerMode(bool hardwareTrigger) { return true; }
+
         internal bool InitGrab()
         {
             if (!Create())
@@ -112,7 +107,7 @@ namespace JidamVision.Grab
             return true;
         }
 
-        internal bool InitBuffer(int bufferCount = 1)  // 다른 클래스에서 자식클래스의 InitBuffer를 호출할때 부모클래스까지 타고 넘어옴
+        internal bool InitBuffer(int bufferCount = 1)
         {
             if (bufferCount < 1)
                 return false;
@@ -129,7 +124,6 @@ namespace JidamVision.Grab
 
             return true;
         }
-
         protected virtual void OnGrabCompleted(object obj = null)
         {
             GrabCompleted?.Invoke(this, obj);
@@ -140,13 +134,5 @@ namespace JidamVision.Grab
         }
 
         internal abstract void Dispose();
-
-
-
-
-
-
-
     }
-
 }

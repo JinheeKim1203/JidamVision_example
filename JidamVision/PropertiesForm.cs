@@ -8,9 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
-using JidamVision.Core;
 using JidamVision.Property;
-using static JidamVision.Property.BinaryInspProp;
+using JidamVision.Core;
 
 namespace JidamVision
 {
@@ -20,19 +19,22 @@ namespace JidamVision
         InspBinary,
         InspMatch
     }
+
     public partial class PropertiesForm : DockContent
     {
-
         public PropertiesForm()
         {
             InitializeComponent();
+            //속성창 설정
             SetInspType(InspPropType.InspBinary);
         }
+
         public void SetInspType(InspPropType inspPropType)
         {
             LoadOptionControl(inspPropType);
         }
 
+        //옵션창에서 입력된 타입의 속성창 생성
         private void LoadOptionControl(InspPropType inspPropType)
         {
             // Panel 초기화
@@ -61,6 +63,7 @@ namespace JidamVision
                 panelContainer.Controls.Add(_inspProp);
             }
         }
+
         private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
         {
             // 속성값을 이용하여 이진화 임계값 설정

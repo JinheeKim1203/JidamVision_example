@@ -9,40 +9,52 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using JidamVision.Core;
+using OpenCvSharp.Extensions;
+using OpenCvSharp;
+using System.IO;
 
 namespace JidamVision
 {
     public partial class CameraForm : DockContent
     {
+        //# SAVE ROI#1 현재 선택된 이미지 채널 저장을 위한 변수
+        eImageChannel _currentImageChannel = eImageChannel.Color;
         public CameraForm()
         {
             InitializeComponent();
+        }
+
+        //# SAVE ROI#2 GUI상에서 선택된 채널 라디오 버튼에 따른 채널 정보를 반환
+        private eImageChannel GetCurrentChannel()
+        {
+            if (rbtnRedChannel.Checked)
+            {
+                return eImageChannel.Red;
+            }
+            else if (rbtnBlueChannel.Checked)
+            {
+                return eImageChannel.Blue;
+            }
+            else if (rbtnGreenChannel.Checked)
+            {
+                return eImageChannel.Green;
+            }
+            else if (rbtnGrayChannel.Checked)
+            {
+                return eImageChannel.Gray;
+            }
+
+            return eImageChannel.Color;
         }
 
         public void UpdateDisplay(Bitmap bitmap = null)
         {
             if (bitmap == null)
             {
-                if (rbtnRedChannel.Checked)
-                {
-                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Red);
-                }
-                else if (rbtnGreenChannel.Checked)
-                {
-                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Green);
-                }
-                else if (rbtnBlueChannel.Checked)
-                {
-                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Blue);
-                }
-                else if (rbtnGrayChannel.Checked)
-                {
-                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0, eImageChannel.Gray);
-                }
-                else
-                {
-                    bitmap = Global.Inst.InspStage.ImageSpace.GetBitmap(0);
-                }
+                //# SAVE ROI#3 채널 정보 변수에 저장
+                //참고 프로젝트에서 _currentImageChannel를 모두 찾아서, 수정할것
+                _currentImageChannel = GetCurrentChannel();
+                bitmap = Global.Inst.InspStage.GetBitmap(0, _currentImageChannel);
                 if (bitmap == null)
                     return;
             }
@@ -56,14 +68,16 @@ namespace JidamVision
 
             int xPos = Location.X + this.Width - btnGrab.Width - margin;
 
-            btnGrab.Location = new Point(xPos, btnGrab.Location.Y);
-            btnLive.Location = new Point(xPos, btnLive.Location.Y);
-            grpChannel.Location = new Point(xPos, grpChannel.Location.Y);
+            btnGrab.Location = new System.Drawing.Point(xPos, btnGrab.Location.Y);
+            btnLive.Location = new System.Drawing.Point(xPos, btnLive.Location.Y);
+            btnSetRoi.Location = new System.Drawing.Point(xPos, btnSetRoi.Location.Y);
+            groupBox1.Location = new System.Drawing.Point(xPos, groupBox1.Location.Y);
+            btnSave.Location = new System.Drawing.Point(xPos, btnSave.Location.Y);
 
             imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
             imageViewer.Height = this.Height - margin * 2;
 
-            imageViewer.Location = new Point(margin, margin);
+            imageViewer.Location = new System.Drawing.Point(margin, margin);
         }
 
         private void btnGrab_Click(object sender, EventArgs e)
@@ -77,9 +91,44 @@ namespace JidamVision
 
             if (Global.Inst.InspStage.LiveMode)
                 Global.Inst.InspStage.Grab(0);
-         
         }
 
+        /*
+         #SETROI# - <<<ROI 설정 개발>>> 
+         이미지 상에서 ROI(Region of Interest)를 설정하는 기능
+         */
+        private void btnSetRoi_Click(object sender, EventArgs e)
+        {
+            imageViewer.RoiMode = !imageViewer.RoiMode;
+            imageViewer.Invalidate();
+        }
 
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            //# SAVE ROI#5 현재 채널 이미지에서, 설정된 ROI 영역을 파일로 저장
+            OpenCvSharp.Mat currentImage = Global.Inst.InspStage.GetMat(0, _currentImageChannel);
+            if (currentImage != null)
+            {
+                //현재 설정된 ROI 영역을 가져옴
+                Rectangle roiRect = imageViewer.GetRoiRect();
+                //전체 이미지에서 ROI 영역만을 roiImage에 저장
+                Mat roiImage = new Mat(currentImage, new Rect(roiRect.X, roiRect.Y, roiRect.Width, roiRect.Height));
+
+                //현재 실행파일이 있는 경로에, 저장할 경로 만들기
+                string savePath = Path.Combine(Directory.GetCurrentDirectory(), Define.ROI_IMAGE_NAME);
+                //이미지 저장
+                Cv2.ImWrite(savePath, roiImage);
+            }
+        }
+
+        private void imageLoadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void imageSaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
