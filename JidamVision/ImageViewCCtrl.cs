@@ -63,6 +63,9 @@ namespace JidamVision
         private float InitialWidth;    // 초기 이미지 너비
         private float InitialHeight;   // 초기 이미지 높이
 
+
+        //#MATCH PROP#11 템플릿 매칭 결과 출력을 위해 Rectangle 리스트 변수 설정
+        private List<Rectangle> _rectangles = new List<Rectangle>();
         public bool RoiMode { get; set; } = false;
 
 
@@ -247,6 +250,28 @@ namespace JidamVision
                      * HighQualityBicubic	가장 부드럽고 고품질, 그러나 가장 느림
                      * HighQualityBilinear	Bilinear보다 품질이 높고 Bicubic보다 빠름
                      ****************************************************************/
+
+                    //#MATCH PROP#12 템플릿 매칭 위치 그리기
+                    float scaleX = ImageRect.Width / Bitmap.Width;
+                    float scaleY = ImageRect.Height / Bitmap.Height;
+
+                    // 이미지 좌표 → 화면 좌표 변환 후 사각형 그리기
+                    if (_rectangles != null)
+                    {
+                        using (Pen pen = new Pen(Color.LightCoral, 2))
+                        {
+                            foreach (var rect in _rectangles)
+                            {
+                                // 이미지 좌표를 화면 좌표로 변환
+                                int screenX = (int)(rect.X * scaleX + ImageRect.X);
+                                int screenY = (int)(rect.Y * scaleY + ImageRect.Y);
+                                int screenWidth = (int)(rect.Width * scaleX);
+                                int screenHeight = (int)(rect.Height * scaleY);
+
+                                g.DrawRectangle(pen, screenX, screenY, screenWidth, screenHeight);
+                            }
+                        }
+                    }
 
                     //#SETROI#6 ROI 그리기
                     if (RoiMode && !_roiRect.IsEmpty)
@@ -580,6 +605,13 @@ namespace JidamVision
             // 원본 이미지에서 ROI 부분을 추출
             Rectangle roi = new Rectangle(roiX, roiY, roiWidth, roiHeight);
             return roi;
+        }
+
+        //#MATCH PROP#13 템플릿 매칭 위치 입력 받는 함수
+        public void AddRect(List<Rectangle> rectangles)
+        {
+            _rectangles = rectangles;
+            Invalidate();
         }
     }
 }

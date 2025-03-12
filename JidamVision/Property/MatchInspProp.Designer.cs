@@ -29,20 +29,22 @@
         private void InitializeComponent()
         {
             this.grpMatch = new System.Windows.Forms.GroupBox();
+            this.btnTeach = new System.Windows.Forms.Button();
+            this.lblMatchCount = new System.Windows.Forms.Label();
+            this.btnSearch = new System.Windows.Forms.Button();
             this.lbScore = new System.Windows.Forms.Label();
             this.txtExtendY = new System.Windows.Forms.TextBox();
             this.txtScore = new System.Windows.Forms.TextBox();
             this.txtExtendX = new System.Windows.Forms.TextBox();
             this.lbX = new System.Windows.Forms.Label();
             this.lbExtend = new System.Windows.Forms.Label();
-            this.btnSearch = new System.Windows.Forms.Button();
-            this.lblMatchCount = new System.Windows.Forms.Label();
-            this.btnTeach = new System.Windows.Forms.Button();
+            this.txtMatchCount = new System.Windows.Forms.TextBox();
             this.grpMatch.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpMatch
             // 
+            this.grpMatch.Controls.Add(this.txtMatchCount);
             this.grpMatch.Controls.Add(this.btnTeach);
             this.grpMatch.Controls.Add(this.lblMatchCount);
             this.grpMatch.Controls.Add(this.btnSearch);
@@ -53,13 +55,43 @@
             this.grpMatch.Controls.Add(this.lbX);
             this.grpMatch.Controls.Add(this.lbExtend);
             this.grpMatch.Location = new System.Drawing.Point(4, 4);
-            this.grpMatch.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMatch.Margin = new System.Windows.Forms.Padding(4);
             this.grpMatch.Name = "grpMatch";
-            this.grpMatch.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMatch.Padding = new System.Windows.Forms.Padding(4);
             this.grpMatch.Size = new System.Drawing.Size(400, 378);
             this.grpMatch.TabIndex = 0;
             this.grpMatch.TabStop = false;
             this.grpMatch.Text = "패턴매칭";
+            // 
+            // btnTeach
+            // 
+            this.btnTeach.Location = new System.Drawing.Point(7, 137);
+            this.btnTeach.Name = "btnTeach";
+            this.btnTeach.Size = new System.Drawing.Size(85, 35);
+            this.btnTeach.TabIndex = 6;
+            this.btnTeach.Text = "티칭";
+            this.btnTeach.UseVisualStyleBackColor = true;
+            this.btnTeach.Click += new System.EventHandler(this.btnTeach_Click);
+            // 
+            // lblMatchCount
+            // 
+            this.lblMatchCount.AutoSize = true;
+            this.lblMatchCount.Location = new System.Drawing.Point(10, 104);
+            this.lblMatchCount.Name = "lblMatchCount";
+            this.lblMatchCount.Size = new System.Drawing.Size(86, 18);
+            this.lblMatchCount.TabIndex = 5;
+            this.lblMatchCount.Text = "매칭 갯수";
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.Location = new System.Drawing.Point(124, 137);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.btnSearch.Size = new System.Drawing.Size(85, 35);
+            this.btnSearch.TabIndex = 4;
+            this.btnSearch.Text = "찾기";
+            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
             // lbScore
             // 
@@ -74,7 +106,7 @@
             // txtExtendY
             // 
             this.txtExtendY.Location = new System.Drawing.Point(230, 18);
-            this.txtExtendY.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtExtendY.Margin = new System.Windows.Forms.Padding(4);
             this.txtExtendY.Name = "txtExtendY";
             this.txtExtendY.Size = new System.Drawing.Size(70, 28);
             this.txtExtendY.TabIndex = 1;
@@ -82,7 +114,7 @@
             // txtScore
             // 
             this.txtScore.Location = new System.Drawing.Point(124, 63);
-            this.txtScore.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtScore.Margin = new System.Windows.Forms.Padding(4);
             this.txtScore.Name = "txtScore";
             this.txtScore.Size = new System.Drawing.Size(176, 28);
             this.txtScore.TabIndex = 1;
@@ -90,7 +122,7 @@
             // txtExtendX
             // 
             this.txtExtendX.Location = new System.Drawing.Point(124, 18);
-            this.txtExtendX.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtExtendX.Margin = new System.Windows.Forms.Padding(4);
             this.txtExtendX.Name = "txtExtendX";
             this.txtExtendX.Size = new System.Drawing.Size(70, 28);
             this.txtExtendX.TabIndex = 1;
@@ -115,40 +147,19 @@
             this.lbExtend.TabIndex = 0;
             this.lbExtend.Text = "확장영역";
             // 
-            // btnSearch
+            // txtMatchCount
             // 
-            this.btnSearch.Location = new System.Drawing.Point(124, 137);
-            this.btnSearch.Name = "btnSearch";
-            this.btnSearch.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnSearch.Size = new System.Drawing.Size(85, 35);
-            this.btnSearch.TabIndex = 4;
-            this.btnSearch.Text = "찾기";
-            this.btnSearch.UseVisualStyleBackColor = true;
-            // 
-            // lblMatchCount
-            // 
-            this.lblMatchCount.AutoSize = true;
-            this.lblMatchCount.Location = new System.Drawing.Point(10, 104);
-            this.lblMatchCount.Name = "lblMatchCount";
-            this.lblMatchCount.Size = new System.Drawing.Size(86, 18);
-            this.lblMatchCount.TabIndex = 5;
-            this.lblMatchCount.Text = "매칭 갯수";
-            // 
-            // btnTeach
-            // 
-            this.btnTeach.Location = new System.Drawing.Point(7, 137);
-            this.btnTeach.Name = "btnTeach";
-            this.btnTeach.Size = new System.Drawing.Size(85, 35);
-            this.btnTeach.TabIndex = 6;
-            this.btnTeach.Text = "티칭";
-            this.btnTeach.UseVisualStyleBackColor = true;
+            this.txtMatchCount.Location = new System.Drawing.Point(124, 101);
+            this.txtMatchCount.Name = "txtMatchCount";
+            this.txtMatchCount.Size = new System.Drawing.Size(176, 28);
+            this.txtMatchCount.TabIndex = 1;
             // 
             // MatchInspProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.grpMatch);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MatchInspProp";
             this.Size = new System.Drawing.Size(427, 404);
             this.grpMatch.ResumeLayout(false);
@@ -169,5 +180,6 @@
         private System.Windows.Forms.Label lblMatchCount;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Button btnTeach;
+        private System.Windows.Forms.TextBox txtMatchCount;
     }
 }

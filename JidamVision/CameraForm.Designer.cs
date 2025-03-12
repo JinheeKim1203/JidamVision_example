@@ -31,7 +31,7 @@
             this.btnGrab = new System.Windows.Forms.Button();
             this.btnLive = new System.Windows.Forms.Button();
             this.imageViewer = new JidamVision.ImageViewCCtrl();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.grpChannel = new System.Windows.Forms.GroupBox();
             this.rbtnGrayChannel = new System.Windows.Forms.RadioButton();
             this.rbtnGreenChannel = new System.Windows.Forms.RadioButton();
             this.rbtnBlueChannel = new System.Windows.Forms.RadioButton();
@@ -39,12 +39,7 @@
             this.btnSetRoi = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageLoadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox1.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            this.grpChannel.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnGrab
@@ -81,18 +76,18 @@
             this.imageViewer.Size = new System.Drawing.Size(473, 406);
             this.imageViewer.TabIndex = 2;
             // 
-            // groupBox1
+            // grpChannel
             // 
-            this.groupBox1.Controls.Add(this.rbtnGrayChannel);
-            this.groupBox1.Controls.Add(this.rbtnGreenChannel);
-            this.groupBox1.Controls.Add(this.rbtnBlueChannel);
-            this.groupBox1.Controls.Add(this.rbtnRedChannel);
-            this.groupBox1.Location = new System.Drawing.Point(501, 268);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(106, 154);
-            this.groupBox1.TabIndex = 4;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Channel";
+            this.grpChannel.Controls.Add(this.rbtnGrayChannel);
+            this.grpChannel.Controls.Add(this.rbtnGreenChannel);
+            this.grpChannel.Controls.Add(this.rbtnBlueChannel);
+            this.grpChannel.Controls.Add(this.rbtnRedChannel);
+            this.grpChannel.Location = new System.Drawing.Point(501, 278);
+            this.grpChannel.Name = "grpChannel";
+            this.grpChannel.Size = new System.Drawing.Size(106, 154);
+            this.grpChannel.TabIndex = 4;
+            this.grpChannel.TabStop = false;
+            this.grpChannel.Text = "Channel";
             // 
             // rbtnGrayChannel
             // 
@@ -164,43 +159,11 @@
             // 
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.imageFilterToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(617, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(617, 24);
             this.menuStrip1.TabIndex = 6;
             this.menuStrip1.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.imageLoadToolStripMenuItem,
-            this.imageSaveToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(55, 29);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // imageLoadToolStripMenuItem
-            // 
-            this.imageLoadToolStripMenuItem.Name = "imageLoadToolStripMenuItem";
-            this.imageLoadToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.imageLoadToolStripMenuItem.Text = "imageLoad";
-            this.imageLoadToolStripMenuItem.Click += new System.EventHandler(this.imageLoadToolStripMenuItem_Click);
-            // 
-            // imageSaveToolStripMenuItem
-            // 
-            this.imageSaveToolStripMenuItem.Name = "imageSaveToolStripMenuItem";
-            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.imageSaveToolStripMenuItem.Text = "imageSave";
-            this.imageSaveToolStripMenuItem.Click += new System.EventHandler(this.imageSaveToolStripMenuItem_Click);
-            // 
-            // imageFilterToolStripMenuItem
-            // 
-            this.imageFilterToolStripMenuItem.Name = "imageFilterToolStripMenuItem";
-            this.imageFilterToolStripMenuItem.Size = new System.Drawing.Size(117, 29);
-            this.imageFilterToolStripMenuItem.Text = "imageFilter";
             // 
             // CameraForm
             // 
@@ -208,7 +171,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(617, 444);
             this.Controls.Add(this.btnSave);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.grpChannel);
             this.Controls.Add(this.btnSetRoi);
             this.Controls.Add(this.btnLive);
             this.Controls.Add(this.imageViewer);
@@ -219,10 +182,8 @@
             this.Name = "CameraForm";
             this.Text = "CameraForm";
             this.Resize += new System.EventHandler(this.CameraForm_Resize);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.grpChannel.ResumeLayout(false);
+            this.grpChannel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -232,7 +193,7 @@
         private System.Windows.Forms.Button btnGrab;
         private ImageViewCCtrl imageViewer;
         private System.Windows.Forms.Button btnLive;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox grpChannel;
         private System.Windows.Forms.RadioButton rbtnRedChannel;
         private System.Windows.Forms.RadioButton rbtnGrayChannel;
         private System.Windows.Forms.RadioButton rbtnGreenChannel;
@@ -240,9 +201,5 @@
         public System.Windows.Forms.Button btnSetRoi;
         public System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem imageLoadToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem imageSaveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem imageFilterToolStripMenuItem;
     }
 }

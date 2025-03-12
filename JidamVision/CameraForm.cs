@@ -71,8 +71,9 @@ namespace JidamVision
             btnGrab.Location = new System.Drawing.Point(xPos, btnGrab.Location.Y);
             btnLive.Location = new System.Drawing.Point(xPos, btnLive.Location.Y);
             btnSetRoi.Location = new System.Drawing.Point(xPos, btnSetRoi.Location.Y);
-            groupBox1.Location = new System.Drawing.Point(xPos, groupBox1.Location.Y);
+            grpChannel.Location = new System.Drawing.Point(xPos, grpChannel.Location.Y);
             btnSave.Location = new System.Drawing.Point(xPos, btnSave.Location.Y);
+            grpChannel.Location = new System.Drawing.Point(xPos, grpChannel.Location.Y);
 
             imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
             imageViewer.Height = this.Height - margin * 2;
@@ -93,6 +94,26 @@ namespace JidamVision
                 Global.Inst.InspStage.Grab(0);
         }
 
+                private void rbtnRedChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void rbtnBlueChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void rbtnGreenChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void rbtnGrayChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
         /*
          #SETROI# - <<<ROI 설정 개발>>> 
          이미지 상에서 ROI(Region of Interest)를 설정하는 기능
@@ -102,6 +123,12 @@ namespace JidamVision
             imageViewer.RoiMode = !imageViewer.RoiMode;
             imageViewer.Invalidate();
         }
+
+        public OpenCvSharp.Mat GetDisplayImage()
+        {
+            return Global.Inst.InspStage.ImageSpace.GetMat(0, _currentImageChannel);
+        }
+
 
         private void btnSave_Click(object sender, EventArgs e)
         {
@@ -121,14 +148,12 @@ namespace JidamVision
             }
         }
 
-        private void imageLoadToolStripMenuItem_Click(object sender, EventArgs e)
+        //#MATCH PROP#14 템플릿 매칭 위치 입력 받는 함수
+        public void AddRect(List<Rectangle> rectangles)
         {
+            imageViewer.AddRect(rectangles);
 
         }
 
-        private void imageSaveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

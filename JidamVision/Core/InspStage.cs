@@ -1,4 +1,5 @@
 ﻿using JidamVision.Grab;
+using JidamVision.Teach;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,8 +20,10 @@ namespace JidamVision.Core
 
         private ImageSpace _imageSpace = null;
         private GrabModel _grabManager = null;
-        private CameraType _camType = CameraType.WebCam;
+        private CameraType _camType = CameraType.HikRobotCam;
         private PreviewImage _previewImage = null;
+
+        private InspWindow _inspWindow = null;
 
         public ImageSpace ImageSpace
         {
@@ -29,6 +33,11 @@ namespace JidamVision.Core
         public PreviewImage PreView
         {
             get => _previewImage;
+        }
+
+        public InspWindow InspWindow
+        {
+            get => _inspWindow;
         }
 
         public bool LiveMode { get; set; } = false;
@@ -70,6 +79,8 @@ namespace JidamVision.Core
                 InitModelGrab(MAX_GRAB_BUF);
             }
 
+            InitInspWindow();
+
             return true;
         }
 
@@ -94,9 +105,54 @@ namespace JidamVision.Core
 
             SetBuffer(bufferCount);
 
-            //_grabManager.SetExposureTime(25000);
+            _grabManager.SetExposureTime(25000);
 
         }
+
+        public void SetImageBuffer(string filePath)
+        {
+            if (_grabManager == null)
+                return;
+
+            Mat matImage = Cv2.ImRead(filePath);
+
+            int pixelBpp = 8;
+            int imageWidth;
+            int imageHeight;
+            int imageStride;
+
+            if (matImage.Type() == MatType.CV_8UC3)
+                pixelBpp = 24;
+
+            imageWidth = (matImage.Width + 3) / 4 * 4;
+            imageHeight = matImage.Height;
+            //imageStride = (int)matImage.Step();
+            imageStride = imageWidth * matImage.ElemSize();
+
+            if (_imageSpace != null)
+            {
+                _imageSpace.SetImageInfo(pixelBpp, imageWidth, imageHeight, imageStride);
+            }
+
+            SetBuffer(1);
+
+            int bufferIndex = 0;
+
+            // Mat의 데이터를 byte 배열로 복사
+            int bufSize = (int)(matImage.Total() * matImage.ElemSize());
+            Marshal.Copy(matImage.Data, ImageSpace.GetInspectionBuffer(bufferIndex), 0, bufSize);
+
+            _imageSpace.Split(bufferIndex);
+
+            DisplayGrabImage(bufferIndex);
+
+            if (_previewImage != null)
+            {
+                Bitmap bitmap = ImageSpace.GetBitmap(0);
+                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+            }
+        }
+
 
         public void SetBuffer(int bufferCount)
         {
@@ -126,6 +182,20 @@ namespace JidamVision.Core
 
             _grabManager.Grab(bufferIndex, true);
         }
+
+
+        public void SaveCurrentImage(string filePath)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                Mat displayImage = cameraForm.GetDisplayImage();
+                Cv2.ImWrite(filePath, displayImage);
+            }
+        }
+
+
+
 
         // NOTE
         // async / await란?
@@ -179,6 +249,17 @@ namespace JidamVision.Core
 
             SelImageChannel = imageChannel;
             return Global.Inst.InspStage.ImageSpace.GetMat(SelBufferIndex, SelImageChannel);
+        }
+
+        private void InitInspWindow()
+        {
+            _inspWindow = new InspWindow();
+
+            var propForm = MainForm.GetDockForm<PropertiesForm>();
+            if (propForm != null)
+            {
+                propForm.SetInspType(InspPropType.InspMatch);
+            }
         }
     }
 }
