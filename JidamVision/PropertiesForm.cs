@@ -10,8 +10,6 @@ using System.Windows.Forms;
 using WeifenLuo.WinFormsUI.Docking;
 using JidamVision.Property;
 using JidamVision.Core;
-using static JidamVision.Property.FilterInspProp;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace JidamVision
 {
@@ -19,9 +17,7 @@ namespace JidamVision
     {
         InspNone = 0,
         InspBinary,
-        InspMatch,
-        InspFilter
-
+        InspMatch
     }
 
     public partial class PropertiesForm : DockContent
@@ -30,7 +26,7 @@ namespace JidamVision
         {
             InitializeComponent();
             //속성창 설정
-            SetInspType(InspPropType.InspMatch);
+            SetInspType(InspPropType.InspBinary);
         }
 
         public void SetInspType(InspPropType inspPropType)
@@ -55,10 +51,6 @@ namespace JidamVision
                 case InspPropType.InspMatch:
                     _inspProp = new MatchInspProp();
                     break;
-                case InspPropType.InspFilter:
-                    _inspProp = new FilterInspProp();
-                    ((FilterInspProp)_inspProp).FilterSelected += FilterSelect_FilterChanged;
-                    break;
                 default:
                     MessageBox.Show("유효하지 않은 옵션입니다.");
                     return;
@@ -72,26 +64,12 @@ namespace JidamVision
             }
         }
 
-        private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
-        {
-            //선택된 필터값 inspStage의 ApplyFilter로 보냄
-            string filter1 = e.FilterSelected1;
-            int filter2 = e.FilterSelected2;
-            Global.Inst.InspStage.PreView?.ApplyFilter(filter1, filter2);
-
-        }
-
         private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
         {
             // 속성값을 이용하여 이진화 임계값 설정
             int lowerValue = e.LowerValue;
             int upperValue = e.UpperValue;
             Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue);
-        }
-
-        private void PropertiesForm_Resize(object sender, EventArgs e)
-        {
-
         }
     }
 }
