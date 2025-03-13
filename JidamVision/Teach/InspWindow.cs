@@ -29,9 +29,18 @@ namespace JidamVision.Teach
 
         public MatchAlgorithm MatchAlgorithm => _matchAlgorithm;
 
+        //#BINARY FILTER#5 이진화 알고리즘 추가
+        //이진화 검사 클래스
+        private BlobAlgorithm _blobAlgorithm;
+
+        public BlobAlgorithm BlobAlgorithm => _blobAlgorithm;
+
         public InspWindow()
         {
             _matchAlgorithm = new MatchAlgorithm();
+
+            //#BINARY FILTER#6 이진화 알고리즘 인스턴스 생성
+            _blobAlgorithm = new BlobAlgorithm();
         }
 
         public bool SetTeachingImage(Mat image, Rectangle rect)
@@ -91,9 +100,9 @@ namespace JidamVision.Teach
 
         //#MATCH PROP#6 템플릿 매칭 검사 결과 위치를 Rectangle 리스트로 반환
 
-        public int GetMatchRect(out List<Rectangle> rectangles)
+        public int GetMatchRect(out List<Rect> rects)
         {
-            rectangles = new List<Rectangle>();
+            rects = new List<Rect>();
 
             int halfwidth = _teachingImage.Width;
             int halfheight = _teachingImage.Height;
@@ -101,10 +110,10 @@ namespace JidamVision.Teach
             foreach (var point in _outPoints)
             {
                 Console.WriteLine($"매칭된 위치: {_outPoints}");
-                rectangles.Add(new Rectangle(point.X - halfwidth, point.Y - halfheight, _teachingImage.Width, _teachingImage.Height));
+                rects.Add(new Rect(point.X - halfwidth, point.Y - halfheight, _teachingImage.Width, _teachingImage.Height));
             }
 
-            return rectangles.Count;
+            return rects.Count;
 
         }
     }

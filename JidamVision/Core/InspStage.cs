@@ -105,7 +105,7 @@ namespace JidamVision.Core
 
             SetBuffer(bufferCount);
 
-            _grabManager.SetExposureTime(25000);
+            _grabManager.SetExposureTime(50000);
 
         }
 
@@ -211,10 +211,10 @@ namespace JidamVision.Core
 
             DisplayGrabImage(bufferIndex);
 
-            if(_previewImage != null)
+            if (_previewImage != null)
             {
                 Bitmap bitmap = ImageSpace.GetBitmap(0);
-                _previewImage.SetImage( BitmapConverter.ToMat(bitmap));
+                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
             }
 
             if (LiveMode)
@@ -238,7 +238,9 @@ namespace JidamVision.Core
             if (bufferIndex >= 0)
                 SelBufferIndex = bufferIndex;
 
-            SelImageChannel = imageChannel;
+            //#BINARY FILTER#13 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
+            if (imageChannel != eImageChannel.None)
+                SelImageChannel = imageChannel;
 
             return Global.Inst.InspStage.ImageSpace.GetBitmap(SelBufferIndex, SelImageChannel);
         }
@@ -247,7 +249,9 @@ namespace JidamVision.Core
             if (bufferIndex >= 0)
                 SelBufferIndex = bufferIndex;
 
-            SelImageChannel = imageChannel;
+            if (imageChannel != eImageChannel.None)
+                SelImageChannel = imageChannel;
+
             return Global.Inst.InspStage.ImageSpace.GetMat(SelBufferIndex, SelImageChannel);
         }
 
@@ -258,7 +262,9 @@ namespace JidamVision.Core
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             if (propForm != null)
             {
-                propForm.SetInspType(InspPropType.InspMatch);
+                //#PANEL TO TAB#4 초기화 과정에서 모든 속성 추가
+                propForm.SetInspType(InspectType.InspMatch);
+                propForm.SetInspType(InspectType.InspBinary);
             }
         }
     }

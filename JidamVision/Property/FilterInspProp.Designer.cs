@@ -28,24 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.grpFilter = new System.Windows.Forms.GroupBox();
+            this.grpImgFilter = new System.Windows.Forms.GroupBox();
             this.btnapply = new System.Windows.Forms.Button();
             this.cmbSelectFilter2 = new System.Windows.Forms.ComboBox();
             this.cmbSelectFilter1 = new System.Windows.Forms.ComboBox();
-            this.grpFilter.SuspendLayout();
+            this.grpImgFilter.SuspendLayout();
             this.SuspendLayout();
             // 
-            // grpFilter
+            // grpImgFilter
             // 
-            this.grpFilter.Controls.Add(this.btnapply);
-            this.grpFilter.Controls.Add(this.cmbSelectFilter2);
-            this.grpFilter.Controls.Add(this.cmbSelectFilter1);
-            this.grpFilter.Location = new System.Drawing.Point(37, 47);
-            this.grpFilter.Name = "grpFilter";
-            this.grpFilter.Size = new System.Drawing.Size(374, 242);
-            this.grpFilter.TabIndex = 0;
-            this.grpFilter.TabStop = false;
-            this.grpFilter.Text = "필터";
+            this.grpImgFilter.Controls.Add(this.btnapply);
+            this.grpImgFilter.Controls.Add(this.cmbSelectFilter2);
+            this.grpImgFilter.Controls.Add(this.cmbSelectFilter1);
+            this.grpImgFilter.Location = new System.Drawing.Point(37, 47);
+            this.grpImgFilter.Name = "grpImgFilter";
+            this.grpImgFilter.Size = new System.Drawing.Size(374, 242);
+            this.grpImgFilter.TabIndex = 0;
+            this.grpImgFilter.TabStop = false;
+            this.grpImgFilter.Text = "이미지필터";
             // 
             // btnapply
             // 
@@ -85,17 +85,17 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.grpFilter);
+            this.Controls.Add(this.grpImgFilter);
             this.Name = "FilterInspProp";
             this.Size = new System.Drawing.Size(470, 347);
-            this.grpFilter.ResumeLayout(false);
+            this.grpImgFilter.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.GroupBox grpFilter;
+        private System.Windows.Forms.GroupBox grpImgFilter;
         private System.Windows.Forms.ComboBox cmbSelectFilter2;
         private System.Windows.Forms.ComboBox cmbSelectFilter1;
         private System.Windows.Forms.Button btnapply;
