@@ -18,9 +18,9 @@ namespace JidamVision.Teach
 {
     public class InspWindow
     {
-        //쳄플릿 매칭할 윈도우 크기
+        //템플릿 매칭할 윈도우 크기
         private System.Drawing.Rectangle _rect;
-
+        //템플릿 매칭 이미지
         private Mat _teachingImage;
 
         private MatchAlgorithm _matchAlgorithm;
@@ -34,6 +34,8 @@ namespace JidamVision.Teach
         private BlobAlgorithm _blobAlgorithm;
 
         public BlobAlgorithm BlobAlgorithm => _blobAlgorithm;
+
+        public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
 
         public InspWindow()
         {
@@ -69,33 +71,52 @@ namespace JidamVision.Teach
             return true;
         }
 
-        //#MATCH PROP#5 템플릿 매칭 검사
-        public bool DoInpsect()
+        //#ABSTRACT ALGORITHM#11 알고리즘을 리스트로 관리하므로, 필요한 타입의 알고리즘을 찾는 함수
+        public InspAlgorithm FindInspAlgorithm(InspectType inspType)
         {
-            if (_teachingImage is null)
-                return false;
-
-            if (_matchAlgorithm is null)
-                _matchAlgorithm = new MatchAlgorithm();
-
-            Mat srcImage = Global.Inst.InspStage.GetMat();
-
-            if (_matchAlgorithm.MatchCount == 1)
+            foreach (var algorithm in AlgorithmList)
             {
-                if (_matchAlgorithm.MatchTemplateSingle(srcImage) == false)
-                    return false;
-
-                _outPoints = new List<OpenCvSharp.Point>();
-                _outPoints.Add(_matchAlgorithm.OutPoint);
-            }
-            else
-            {
-                int matchCount = _matchAlgorithm.MatchTemplateMultiple(srcImage, out _outPoints);
-                if (matchCount <= 0)
-                    return false;
+                if (algorithm.InspectType == inspType)
+                    return algorithm;
             }
 
-            return true;
+            return null;
+        }
+
+        //#MATCH PROP#5 템플릿 매칭 검사
+        //#ABSTRACT ALGORITHM#12 클래스 내에서, 인자로 입력된 타입의 알고리즘을 검사하거나,
+        ///모든 알고리즘을 검사하는 옵션을 가지는 검사 함수
+        public bool DoInspect(InspectType inspType)
+        {
+            foreach (var inspAlgo in AlgorithmList)
+            {
+                if (inspAlgo.InspectType == inspType || inspAlgo.InspectType == InspectType.InspNone)
+                    inspAlgo.DoInspect();
+              
+            }
+                //if (_teachingImage is null)
+                //    return false;
+
+                //if (_matchAlgorithm is null)
+                //    _matchAlgorithm = new MatchAlgorithm();
+
+                //Mat srcImage = Global.Inst.InspStage.GetMat();
+
+                //if (_matchAlgorithm.MatchCount == 1)
+                //{
+                //    if (_matchAlgorithm.MatchTemplateSingle(srcImage) == false)
+                //        return false;
+
+                //    _outPoints = new List<OpenCvSharp.Point>();
+                //    _outPoints.Add(_matchAlgorithm.OutPoint);
+                //}
+                //else
+                //{
+                //    int matchCount = _matchAlgorithm.MatchTemplateMultiple(srcImage, out _outPoints);
+                //    if (matchCount <= 0)
+                //        return false;
+                //}
+                return true;
         }
 
         //#MATCH PROP#6 템플릿 매칭 검사 결과 위치를 Rectangle 리스트로 반환

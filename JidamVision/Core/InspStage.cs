@@ -1,4 +1,5 @@
 ﻿using JidamVision.Grab;
+using JidamVision.Inspect;
 using JidamVision.Teach;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
@@ -7,9 +8,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace JidamVision.Core
 {
@@ -20,8 +23,11 @@ namespace JidamVision.Core
 
         private ImageSpace _imageSpace = null;
         private GrabModel _grabManager = null;
-        private CameraType _camType = CameraType.HikRobotCam;
+        private CameraType _camType = CameraType.WebCam;
         private PreviewImage _previewImage = null;
+
+        //#INSP WORKER#6 InspWorker 변수 추가 
+        private InspWorker _inspWorker = null;
 
         private InspWindow _inspWindow = null;
 
@@ -35,10 +41,19 @@ namespace JidamVision.Core
             get => _previewImage;
         }
 
+        //#INSP WORKER#7 InspWorker 프로퍼티 추가
+        public InspWorker InspWorker
+        {
+            get => _inspWorker;
+        }
+
         public InspWindow InspWindow
         {
             get => _inspWindow;
         }
+
+        //#INSP WORKER#1 1개만 있던 InspWindow를 리스트로 변경하여, 여러개의 ROI를 관리하도록 개선
+        public List<InspWindow> InspWindowList { get; set; } = new List<InspWindow>();
 
         public bool LiveMode { get; set; } = false;
 
@@ -52,6 +67,7 @@ namespace JidamVision.Core
         {
             _imageSpace = new ImageSpace();
             _previewImage = new PreviewImage();
+            _inspWorker = new InspWorker();
 
             switch (_camType)
             {
@@ -126,7 +142,10 @@ namespace JidamVision.Core
 
             imageWidth = (matImage.Width + 3) / 4 * 4;
             imageHeight = matImage.Height;
-            //imageStride = (int)matImage.Step();
+
+            // 4바이트 정렬된 새로운 Mat 생성
+            Mat alignedMat = new Mat();
+            Cv2.CopyMakeBorder(matImage, alignedMat, 0, 0, 0, imageWidth - matImage.Width, BorderTypes.Constant, Scalar.Black);
             imageStride = imageWidth * matImage.ElemSize();
 
             if (_imageSpace != null)
@@ -139,8 +158,8 @@ namespace JidamVision.Core
             int bufferIndex = 0;
 
             // Mat의 데이터를 byte 배열로 복사
-            int bufSize = (int)(matImage.Total() * matImage.ElemSize());
-            Marshal.Copy(matImage.Data, ImageSpace.GetInspectionBuffer(bufferIndex), 0, bufSize);
+            int bufSize = (int)(alignedMat.Total() * alignedMat.ElemSize());
+            Marshal.Copy(alignedMat.Data, ImageSpace.GetInspectionBuffer(bufferIndex), 0, bufSize);
 
             _imageSpace.Split(bufferIndex);
 
@@ -233,7 +252,8 @@ namespace JidamVision.Core
             }
         }
 
-        public Bitmap GetBitmap(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.Gray)
+
+        public Bitmap GetBitmap(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.None)
         {
             if (bufferIndex >= 0)
                 SelBufferIndex = bufferIndex;
@@ -244,11 +264,12 @@ namespace JidamVision.Core
 
             return Global.Inst.InspStage.ImageSpace.GetBitmap(SelBufferIndex, SelImageChannel);
         }
-        public Mat GetMat(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.Gray)
+        public Mat GetMat(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.None)
         {
             if (bufferIndex >= 0)
                 SelBufferIndex = bufferIndex;
 
+            //#BINARY FILTER#14 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
             if (imageChannel != eImageChannel.None)
                 SelImageChannel = imageChannel;
 

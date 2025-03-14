@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenCvSharp;
+using JidamVision.Algorithm;
 
 namespace JidamVision.Property
 {
@@ -30,6 +31,11 @@ namespace JidamVision.Property
             if (inspWindow is null)
                 return;
 
+            //#INSP WORKER#14 inspWindow에서 매칭 알고리즘 찾는 코드
+            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
+            if (matchAlgo is null)
+                return;
+
             OpenCvSharp.Size extendSize = inspWindow.MatchAlgorithm.ExtSize;
             int matchScore = inspWindow.MatchAlgorithm.MatchScore;
             int matchCount = inspWindow.MatchAlgorithm.MatchCount;
@@ -43,6 +49,15 @@ namespace JidamVision.Property
         //#MATCH PROP#10 템플릿 매칭 실행
         private void btnSearch_Click(object sender, EventArgs e)
         {
+            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
+            if(inspWindow is null) 
+                return;
+
+            //#INSP WORKER#11 inspWindow에서 매칭 알고리즘 찾는 코드 추가
+            MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
+            if (matchAlgo is null)
+                return; 
+
             //GUI에 설정된 정보를 MatchAlgorithm에 설정
             OpenCvSharp.Size extendSize = new OpenCvSharp.Size();
             extendSize.Width = int.Parse(txtExtendX.Text);
@@ -50,28 +65,12 @@ namespace JidamVision.Property
             int matchScore = int.Parse(txtScore.Text);
             int matchCount = int.Parse(txtMatchCount.Text);
 
-            InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
+            //InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
             inspWindow.MatchAlgorithm.ExtSize = extendSize;
             inspWindow.MatchAlgorithm.MatchScore = matchScore;
             inspWindow.MatchAlgorithm.MatchCount = matchCount;
 
-            //템플릿 매칭 실행
-            if (inspWindow.DoInpsect())
-            {
-                //#BINARY FILTER#17 Rect타입으로 통일, Rectangle -> Rect 변경할것(OpenCV에서 사용되는 rect로 쓰고 나중에 필요할 때 rectagle로)
-               
-                List<Rect> rects;
-                int findCount = inspWindow.GetMatchRect(out rects);
-                if (findCount > 0)
-                {
-                    //찾은 위치를 이미지상에서 표시
-                    var cameraForm = MainForm.GetDockForm<CameraForm>();
-                    if (cameraForm != null)
-                    {
-                        cameraForm.AddRect(rects);
-                    }
-                }
-            }
+            Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspMatch);
         }
 
         //#MATCH PROP#9 저장된 ROI이미지 로딩

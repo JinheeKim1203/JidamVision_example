@@ -83,10 +83,9 @@ namespace JidamVision
             btnGrab.Location = new System.Drawing.Point(xPos, btnGrab.Location.Y);
             btnLive.Location = new System.Drawing.Point(xPos, btnLive.Location.Y);
             btnSetRoi.Location = new System.Drawing.Point(xPos, btnSetRoi.Location.Y);
-            grpChannel.Location = new System.Drawing.Point(xPos, grpChannel.Location.Y);
+            btnInspect.Location = new System.Drawing.Point(xPos, btnInspect.Location.Y);
             btnSave.Location = new System.Drawing.Point(xPos, btnSave.Location.Y);
-            grpChannel.Location = new System.Drawing.Point(xPos, grpChannel.Location.Y);
-
+            grpChannel.Location = new System.Drawing.Point(xPos, grpChannel.Location.Y + 10);
             imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
             imageViewer.Height = this.Height - margin * 2;
 
@@ -104,26 +103,6 @@ namespace JidamVision
 
             if (Global.Inst.InspStage.LiveMode)
                 Global.Inst.InspStage.Grab(0);
-        }
-
-        private void rbtnRedChannel_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateDisplay();
-        }
-
-        private void rbtnBlueChannel_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateDisplay();
-        }
-
-        private void rbtnGreenChannel_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateDisplay();
-        }
-
-        private void rbtnGrayChannel_CheckedChanged(object sender, EventArgs e)
-        {
-            UpdateDisplay();
         }
 
         /*
@@ -164,5 +143,35 @@ namespace JidamVision
         }
 
 
+        //#INSP WORKER#8 CaearaForm에 검사 버튼을 추가하고, 전체 검사 함수 추가
+        private void btnInspect_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.InspWorker.RunInspect();
+        }
+
+        private void rbtnColor_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void rbtnRedChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void rbtnBlueChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void rbtnGreenChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
+
+        private void rbtnGrayChannel_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDisplay();
+        }
     }
 }

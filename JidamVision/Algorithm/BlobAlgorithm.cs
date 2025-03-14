@@ -31,33 +31,70 @@ namespace JidamVision.Algorithm
 
         public BlobAlgorithm()
         {
+              //#ABSTRACT ALGORITHM#5 각 함수마다 자신의 알고리즘 타입 설정
+            InspectType = InspectType.InspBinary;
         }
 
         //#BINARY FILTER#2 이진화 후, 필터를 이용해 원하는 영역을 얻음(doinspect = 핵심검사) 
-        public bool DoInspect(Mat srcImage)
+        //public bool DoInspect(Mat srcImage)
+        //{
+        //    if (srcImage == null)
+        //        return false;
+
+        //    Mat grayImage = new Mat();
+        //    if (srcImage.Type() == MatType.CV_8UC3)
+        //        Cv2.CvtColor(srcImage, grayImage, ColorConversionCodes.BGR2GRAY);
+        //    else
+        //        grayImage = srcImage;
+
+        //    Mat binaryImage = new Mat();
+        //    Cv2.InRange(grayImage, BinaryThreshold.lower, BinaryThreshold.upper, binaryImage);
+
+        //    if (BinaryThreshold.invert)
+        //        binaryImage = ~binaryImage;
+
+        //    if (AreaFilter > 0)
+        //    {
+        //        if (!BlobFilter(binaryImage, AreaFilter))
+        //            return false;
+        //    }
+        //    return true;
+        //}
+
+        //#ABSTRACT ALGORITHM#6 
+        //InspAlgorithm을 상속받아, 구현하고, 인자로 입력받던 것을 부모의 _srcImage 이미지 사용
+        //검사 시작전 IsInspected = false로 초기화하고, 검사가 정상적으로 완료되면,IsInspected = true로 설정
+        public override bool DoInspect()
         {
-            if (srcImage == null)
+            IsInspected = false;
+
+            if (_srcImage == null)
                 return false;
 
             Mat grayImage = new Mat();
-            if (srcImage.Type() == MatType.CV_8UC3)
-                Cv2.CvtColor(srcImage, grayImage, ColorConversionCodes.BGR2GRAY);
+            if (_srcImage.Type() == MatType.CV_8UC3)
+                Cv2.CvtColor(_srcImage, grayImage, ColorConversionCodes.BGR2GRAY);
             else
-                grayImage = srcImage;
+                grayImage = _srcImage;
 
             Mat binaryImage = new Mat();
+            //Cv2.Threshold(grayImage, binaryMask, lowerValue, upperValue, ThresholdTypes.Binary);
             Cv2.InRange(grayImage, BinaryThreshold.lower, BinaryThreshold.upper, binaryImage);
 
             if (BinaryThreshold.invert)
                 binaryImage = ~binaryImage;
 
-            if(AreaFilter > 0)
+            if (AreaFilter > 0)
             {
                 if (!BlobFilter(binaryImage, AreaFilter))
                     return false;
             }
+
+            IsInspected = true;
+
             return true;
         }
+
 
         //#BINARY FILTER#3 이진화 필터처리 함수
         private bool BlobFilter(Mat binImage, int areaFilter)
@@ -68,9 +105,9 @@ namespace JidamVision.Algorithm
             Cv2.FindContours(binImage, out contours, out hierarchy, RetrievalModes.External, ContourApproximationModes.ApproxSimple);
 
             // 필터링된 객체를 담을 리스트
-            //  Mat filteredImage = Mat.Zeros(binImage.Size(), MatType.CV_8UC1);
+            Mat filteredImage = Mat.Zeros(binImage.Size(), MatType.CV_8UC1);
 
-            if(_findArea is null)
+            if (_findArea is null)
                 _findArea = new List<Rect>();
 
             _findArea.Clear();
@@ -78,7 +115,7 @@ namespace JidamVision.Algorithm
             foreach (var contour in contours)
             {
                 double area = Cv2.ContourArea(contour);
-                if (area > areaFilter)
+                if (area < areaFilter)
                     continue;
 
                 // 필터링된 객체를 이미지에 그림
@@ -101,7 +138,7 @@ namespace JidamVision.Algorithm
         }
 
         //#BINARY FILTER#4 이진화 영역 반환
-        public int GetResultRect(out List<Rect> resultArea)
+        public override int GetResultRect(out List<Rect> resultArea)
         {
             resultArea = null;
 
