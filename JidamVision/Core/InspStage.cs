@@ -121,7 +121,7 @@ namespace JidamVision.Core
 
             SetBuffer(bufferCount);
 
-            _grabManager.SetExposureTime(50000);
+            _grabManager.SetExposureTime(100);
 
         }
 
@@ -146,6 +146,7 @@ namespace JidamVision.Core
             // 4바이트 정렬된 새로운 Mat 생성
             Mat alignedMat = new Mat();
             Cv2.CopyMakeBorder(matImage, alignedMat, 0, 0, 0, imageWidth - matImage.Width, BorderTypes.Constant, Scalar.Black);
+            
             imageStride = imageWidth * matImage.ElemSize();
 
             if (_imageSpace != null)
@@ -178,8 +179,8 @@ namespace JidamVision.Core
             if (_grabManager == null)
                 return;
 
-            if (_imageSpace.BufferCount == bufferCount)
-                return;
+            //if (_imageSpace.BufferCount == bufferCount)
+            //    return;
 
             _imageSpace.InitImageSpace(bufferCount);
             _grabManager.InitBuffer(bufferCount);
@@ -201,20 +202,6 @@ namespace JidamVision.Core
 
             _grabManager.Grab(bufferIndex, true);
         }
-
-
-        public void SaveCurrentImage(string filePath)
-        {
-            var cameraForm = MainForm.GetDockForm<CameraForm>();
-            if (cameraForm != null)
-            {
-                Mat displayImage = cameraForm.GetDisplayImage();
-                Cv2.ImWrite(filePath, displayImage);
-            }
-        }
-
-
-
 
         // NOTE
         // async / await란?
@@ -253,6 +240,16 @@ namespace JidamVision.Core
         }
 
 
+        public void SaveCurrentImage(string filePath)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                Mat displayImage = cameraForm.GetDisplayImage();
+                Cv2.ImWrite(filePath, displayImage);
+            }
+        }
+
         public Bitmap GetBitmap(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.None)
         {
             if (bufferIndex >= 0)
@@ -261,6 +258,9 @@ namespace JidamVision.Core
             //#BINARY FILTER#13 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
             if (imageChannel != eImageChannel.None)
                 SelImageChannel = imageChannel;
+
+            if (Global.Inst.InspStage.ImageSpace is null)
+                return null;
 
             return Global.Inst.InspStage.ImageSpace.GetBitmap(SelBufferIndex, SelImageChannel);
         }
@@ -284,8 +284,14 @@ namespace JidamVision.Core
             if (propForm != null)
             {
                 //#PANEL TO TAB#4 초기화 과정에서 모든 속성 추가
-                propForm.SetInspType(InspectType.InspMatch);
-                propForm.SetInspType(InspectType.InspBinary);
+                //propForm.SetInspType(InspectType.InspMatch);
+                //propForm.SetInspType(InspectType.InspBinary);
+
+                //#ABSTRACT ALGORITHM#8 InspAlgorithm을 추상화하였으므로, 
+                //모든 검사 타입을 for문을 통해서 추가,
+                //함수명 변경 SetInspType -> AddInspType
+                for (int i = 0; i < (int)InspectType.InspCount; i++)
+                    propForm.AddInspType((InspectType)i);
             }
         }
     }

@@ -36,9 +36,9 @@ namespace JidamVision.Property
             if (matchAlgo is null)
                 return;
 
-            OpenCvSharp.Size extendSize = inspWindow.MatchAlgorithm.ExtSize;
-            int matchScore = inspWindow.MatchAlgorithm.MatchScore;
-            int matchCount = inspWindow.MatchAlgorithm.MatchCount;
+            OpenCvSharp.Size extendSize = matchAlgo.ExtSize;
+            int matchScore = matchAlgo.MatchScore;
+            int matchCount = matchAlgo.MatchCount;
 
             txtExtendX.Text = extendSize.Width.ToString();
             txtExtendY.Text = extendSize.Height.ToString();
@@ -66,9 +66,9 @@ namespace JidamVision.Property
             int matchCount = int.Parse(txtMatchCount.Text);
 
             //InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            inspWindow.MatchAlgorithm.ExtSize = extendSize;
-            inspWindow.MatchAlgorithm.MatchScore = matchScore;
-            inspWindow.MatchAlgorithm.MatchCount = matchCount;
+            matchAlgo.ExtSize = extendSize;
+            matchAlgo.MatchScore = matchScore;
+            matchAlgo.MatchCount = matchCount;
 
             Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspMatch);
         }

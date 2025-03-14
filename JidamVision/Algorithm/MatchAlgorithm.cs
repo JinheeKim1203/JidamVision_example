@@ -46,7 +46,6 @@ namespace JidamVision.Algorithm
         /// </summary>
         public bool MatchTemplateSingle(Mat image)
         {
-
             if (_templateImage is null)
                 return false;
 

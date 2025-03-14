@@ -43,8 +43,6 @@ namespace JidamVision
             //SetInspType(InspectType.InspMatch);
         }
 
-
-
         //#PANEL TO TAB#3 속성탭이 있다면 그것을 반환하고, 없다면 생성
         private void LoadOptionControl(InspectType inspType)
         {
@@ -100,10 +98,15 @@ namespace JidamVision
             return _inspProp;
         }
 
-        public void SetInspType(InspectType inspPropType)
+        public void AddInspType(InspectType inspPropType)
         {
             LoadOptionControl(inspPropType);
         }
+
+        //public void SetInspType(InspectType inspPropType)
+        //{
+        //    LoadOptionControl(inspPropType);
+        //}
 
         //// Panel 초기화
         //panelContainer.Controls.Clear();
@@ -152,6 +155,15 @@ namespace JidamVision
             bool invert = e.Invert;
             ShowBinaryMode showBinMode = e.ShowBinMode;
             Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+        }
+
+        private void FilterSelect_FilterChanged(object sender, FilterSelectedEventArgs e)
+        {
+            //선택된 필터값 PrieviewImage의 ApplyFilter로 보냄
+            string filter1 = e.FilterSelected1;
+            int filter2 = e.FilterSelected2;
+            Global.Inst.InspStage.PreView?.ApplyFilter(filter1, filter2);
+
         }
     }
 }

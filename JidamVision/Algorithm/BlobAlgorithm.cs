@@ -142,6 +142,10 @@ namespace JidamVision.Algorithm
         {
             resultArea = null;
 
+            //#ABSTRACT ALGORITHM#7 검사가 완료되지 않았다면, 리턴
+            if (!IsInspected)
+                return -1;
+
             if (_findArea is null || _findArea.Count <= 0)
                 return -1;
 

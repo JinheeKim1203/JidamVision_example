@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace JidamVision.Algorithm
 {
+    /*
+    #ABSTRACT ALGORITHM# - <<<검사 알고리즘 추상화 개발>>> 
+     */
+
     //#MATCH PROP#1 InspAlgorithm 클래스를 추가, 여러 알고리즘을 추상화하기 위함
     //추가 내용은 나중에 개발하고, 현재는 비어 있는 상태로 만들것
     public abstract class InspAlgorithm
@@ -15,6 +19,9 @@ namespace JidamVision.Algorithm
 
         //알고리즘 타입 정의
         public InspectType InspectType { get; set; } = InspectType.InspNone;
+
+        //알고리즘을 사용할지 여부 결정
+        public bool IsUse { get; set; } = false;
 
         //검사가 완료되었는지를 판단
         public bool IsInspected { get; set; } = false;
