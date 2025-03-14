@@ -27,7 +27,8 @@ namespace JidamVision.Algorithm
         public BinaryThreshold BinaryThreshold { get; set; } = new BinaryThreshold();
 
         //픽셀 영역으로 이진화 필터
-        public int AreaFilter { get; set; } = 100;
+        public int MinAreaFilter { get; set; } = 0;
+        public int MaxAreaFilter { get; set; } = 100000;
 
         public BlobAlgorithm()
         {
@@ -124,6 +125,8 @@ namespace JidamVision.Algorithm
                 // RotatedRect 정보 계산
                 //RotatedRect rotatedRect = Cv2.MinAreaRect(contour);
                 Rect boundingRect = Cv2.BoundingRect(contour);
+
+                
 
                 _findArea.Add(boundingRect);
 

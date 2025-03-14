@@ -72,8 +72,12 @@ namespace JidamVision.Property
                 BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
                 if (blobAlgo != null)
                 {
-                    int filterArea = blobAlgo.AreaFilter;
-                    txtArea.Text = filterArea.ToString();
+                    int filterMinArea = blobAlgo.MinAreaFilter;
+                    txtMinArea.Text = filterMinArea.ToString();
+
+                    int filterMaxArea = blobAlgo.MaxAreaFilter;
+                    txtMaxArea.Text = filterMaxArea.ToString();
+
                 }
             }
         }
@@ -137,8 +141,11 @@ namespace JidamVision.Property
 
             blobAlgo.BinaryThreshold = threshold;
 
-            int filterArea = int.Parse(txtArea.Text);
-            blobAlgo.AreaFilter = filterArea;
+            int filterMinArea = int.Parse(txtMinArea.Text);
+            blobAlgo.MinAreaFilter = filterMinArea;
+
+            int filterMaxArea = int.Parse(txtMaxArea.Text);
+            blobAlgo.MaxAreaFilter = filterMaxArea;
 
             //#INSP WORKER#10 이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
             Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspBinary);
