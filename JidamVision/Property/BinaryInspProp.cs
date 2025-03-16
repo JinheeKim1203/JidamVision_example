@@ -1,18 +1,8 @@
-﻿using JidamVision.Algorithm;
+﻿using System;
+using System.Windows.Forms;
+using JidamVision.Algorithm;
 using JidamVision.Core;
 using JidamVision.Teach;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static JidamVision.Property.BinaryInspProp;
-using static System.Windows.Forms.MonthCalendar;
-using OpenCvSharp;
 
 
 namespace JidamVision.Property
@@ -123,10 +113,28 @@ namespace JidamVision.Property
             UpdateBinary();
         }
 
-        private void btnFilter_Click(object sender, EventArgs e)
+
+        private void UpdateBinaryFilter()
         {
+            bool area = chkArea.Checked;
+            bool width = chkWidth.Checked;
+            bool height = chkHeight.Checked;
+
+            ShowBinaryMode showBinaryMode = ShowBinaryMode.ShowBinaryNone;
+            if (area)
+            {
+                showBinaryMode = ShowBinaryMode.ShowBinaryHighlight;
+
+                bool showBinary = chkShowBinary.Checked;
+
+                if (showBinary)
+                    showBinaryMode = ShowBinaryMode.ShowBinaryOnly;
+            }
+
+            RangeChanged?.Invoke(this, new RangeChangedEventArgs(LowerValue, UpperValue, invert, showBinaryMode));
+
             InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if(inspWindow is null)
+            if (inspWindow is null)
                 return;
 
             //#INSP WORKER#9 inspWindow에서 이진화 알고리즘 찾는 코드 추가 
@@ -149,6 +157,13 @@ namespace JidamVision.Property
 
             //#INSP WORKER#10 이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
             Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspBinary);
+
+        }
+
+
+        private void btnFilter_Click(object sender, EventArgs e)
+        {
+
 
             //Mat srcImage = Global.Inst.InspStage.GetMat();
 

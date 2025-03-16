@@ -41,23 +41,23 @@
             this.trackBarUpper = new System.Windows.Forms.TrackBar();
             this.trackBarLower = new System.Windows.Forms.TrackBar();
             this.grpFilter = new System.Windows.Forms.GroupBox();
+            this.lblMax = new System.Windows.Forms.Label();
+            this.lblMin = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtMinHeight = new System.Windows.Forms.TextBox();
+            this.txtMaxHeight = new System.Windows.Forms.TextBox();
+            this.txtMinWidth = new System.Windows.Forms.TextBox();
+            this.txtMaxWidth = new System.Windows.Forms.TextBox();
+            this.txtMinArea = new System.Windows.Forms.TextBox();
+            this.txtMaxArea = new System.Windows.Forms.TextBox();
+            this.chkHeight = new System.Windows.Forms.CheckBox();
+            this.chkWidth = new System.Windows.Forms.CheckBox();
+            this.chkArea = new System.Windows.Forms.CheckBox();
             this.btnFilter = new System.Windows.Forms.Button();
             this.lblArea = new System.Windows.Forms.Label();
             this.txtArea = new System.Windows.Forms.TextBox();
-            this.chkArea = new System.Windows.Forms.CheckBox();
-            this.chkWidth = new System.Windows.Forms.CheckBox();
-            this.chkHeight = new System.Windows.Forms.CheckBox();
-            this.txtMaxArea = new System.Windows.Forms.TextBox();
-            this.txtMinArea = new System.Windows.Forms.TextBox();
-            this.txtMaxWidth = new System.Windows.Forms.TextBox();
-            this.txtMinWidth = new System.Windows.Forms.TextBox();
-            this.txtMaxHeight = new System.Windows.Forms.TextBox();
-            this.txtMinHeight = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.lblMin = new System.Windows.Forms.Label();
-            this.lblMax = new System.Windows.Forms.Label();
             this.grpBinary.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarUpper)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarLower)).BeginInit();
@@ -82,7 +82,7 @@
             // 
             this.chkShowBinary.AutoSize = true;
             this.chkShowBinary.Location = new System.Drawing.Point(125, 125);
-            this.chkShowBinary.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkShowBinary.Margin = new System.Windows.Forms.Padding(2);
             this.chkShowBinary.Name = "chkShowBinary";
             this.chkShowBinary.Size = new System.Drawing.Size(60, 16);
             this.chkShowBinary.TabIndex = 6;
@@ -94,7 +94,7 @@
             // 
             this.chkInvert.AutoSize = true;
             this.chkInvert.Location = new System.Drawing.Point(23, 145);
-            this.chkInvert.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkInvert.Margin = new System.Windows.Forms.Padding(2);
             this.chkInvert.Name = "chkInvert";
             this.chkInvert.Size = new System.Drawing.Size(48, 16);
             this.chkInvert.TabIndex = 5;
@@ -152,18 +152,135 @@
             this.grpFilter.Controls.Add(this.lblArea);
             this.grpFilter.Controls.Add(this.txtArea);
             this.grpFilter.Location = new System.Drawing.Point(3, 178);
-            this.grpFilter.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.grpFilter.Margin = new System.Windows.Forms.Padding(2);
             this.grpFilter.Name = "grpFilter";
-            this.grpFilter.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.grpFilter.Padding = new System.Windows.Forms.Padding(2);
             this.grpFilter.Size = new System.Drawing.Size(304, 209);
             this.grpFilter.TabIndex = 4;
             this.grpFilter.TabStop = false;
             this.grpFilter.Text = "Filter";
             // 
+            // lblMax
+            // 
+            this.lblMax.AutoSize = true;
+            this.lblMax.Location = new System.Drawing.Point(233, 35);
+            this.lblMax.Name = "lblMax";
+            this.lblMax.Size = new System.Drawing.Size(30, 12);
+            this.lblMax.TabIndex = 16;
+            this.lblMax.Text = "Max";
+            // 
+            // lblMin
+            // 
+            this.lblMin.AutoSize = true;
+            this.lblMin.Location = new System.Drawing.Point(102, 35);
+            this.lblMin.Name = "lblMin";
+            this.lblMin.Size = new System.Drawing.Size(26, 12);
+            this.lblMin.TabIndex = 15;
+            this.lblMin.Text = "Min";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(177, 130);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(14, 12);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "~";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(176, 96);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(14, 12);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "~";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(177, 60);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(14, 12);
+            this.label1.TabIndex = 12;
+            this.label1.Text = "~";
+            // 
+            // txtMinHeight
+            // 
+            this.txtMinHeight.Location = new System.Drawing.Point(71, 128);
+            this.txtMinHeight.Name = "txtMinHeight";
+            this.txtMinHeight.Size = new System.Drawing.Size(100, 21);
+            this.txtMinHeight.TabIndex = 11;
+            // 
+            // txtMaxHeight
+            // 
+            this.txtMaxHeight.Location = new System.Drawing.Point(198, 128);
+            this.txtMaxHeight.Name = "txtMaxHeight";
+            this.txtMaxHeight.Size = new System.Drawing.Size(100, 21);
+            this.txtMaxHeight.TabIndex = 10;
+            // 
+            // txtMinWidth
+            // 
+            this.txtMinWidth.Location = new System.Drawing.Point(71, 91);
+            this.txtMinWidth.Name = "txtMinWidth";
+            this.txtMinWidth.Size = new System.Drawing.Size(100, 21);
+            this.txtMinWidth.TabIndex = 9;
+            // 
+            // txtMaxWidth
+            // 
+            this.txtMaxWidth.Location = new System.Drawing.Point(198, 91);
+            this.txtMaxWidth.Name = "txtMaxWidth";
+            this.txtMaxWidth.Size = new System.Drawing.Size(100, 21);
+            this.txtMaxWidth.TabIndex = 8;
+            // 
+            // txtMinArea
+            // 
+            this.txtMinArea.Location = new System.Drawing.Point(71, 55);
+            this.txtMinArea.Name = "txtMinArea";
+            this.txtMinArea.Size = new System.Drawing.Size(100, 21);
+            this.txtMinArea.TabIndex = 7;
+            // 
+            // txtMaxArea
+            // 
+            this.txtMaxArea.Location = new System.Drawing.Point(198, 55);
+            this.txtMaxArea.Name = "txtMaxArea";
+            this.txtMaxArea.Size = new System.Drawing.Size(100, 21);
+            this.txtMaxArea.TabIndex = 6;
+            // 
+            // chkHeight
+            // 
+            this.chkHeight.AutoSize = true;
+            this.chkHeight.Location = new System.Drawing.Point(5, 130);
+            this.chkHeight.Name = "chkHeight";
+            this.chkHeight.Size = new System.Drawing.Size(59, 16);
+            this.chkHeight.TabIndex = 5;
+            this.chkHeight.Text = "Height";
+            this.chkHeight.UseVisualStyleBackColor = true;
+            // 
+            // chkWidth
+            // 
+            this.chkWidth.AutoSize = true;
+            this.chkWidth.Location = new System.Drawing.Point(5, 95);
+            this.chkWidth.Name = "chkWidth";
+            this.chkWidth.Size = new System.Drawing.Size(54, 16);
+            this.chkWidth.TabIndex = 4;
+            this.chkWidth.Text = "Width";
+            this.chkWidth.UseVisualStyleBackColor = true;
+            // 
+            // chkArea
+            // 
+            this.chkArea.AutoSize = true;
+            this.chkArea.Location = new System.Drawing.Point(5, 60);
+            this.chkArea.Name = "chkArea";
+            this.chkArea.Size = new System.Drawing.Size(50, 16);
+            this.chkArea.TabIndex = 3;
+            this.chkArea.Text = "Area";
+            this.chkArea.UseVisualStyleBackColor = true;
+            // 
             // btnFilter
             // 
             this.btnFilter.Location = new System.Drawing.Point(178, -2);
-            this.btnFilter.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnFilter.Margin = new System.Windows.Forms.Padding(2);
             this.btnFilter.Name = "btnFilter";
             this.btnFilter.Size = new System.Drawing.Size(73, 23);
             this.btnFilter.TabIndex = 2;
@@ -184,127 +301,10 @@
             // txtArea
             // 
             this.txtArea.Location = new System.Drawing.Point(66, 0);
-            this.txtArea.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtArea.Margin = new System.Windows.Forms.Padding(2);
             this.txtArea.Name = "txtArea";
             this.txtArea.Size = new System.Drawing.Size(71, 21);
             this.txtArea.TabIndex = 0;
-            // 
-            // chkArea
-            // 
-            this.chkArea.AutoSize = true;
-            this.chkArea.Location = new System.Drawing.Point(5, 60);
-            this.chkArea.Name = "chkArea";
-            this.chkArea.Size = new System.Drawing.Size(50, 16);
-            this.chkArea.TabIndex = 3;
-            this.chkArea.Text = "Area";
-            this.chkArea.UseVisualStyleBackColor = true;
-            // 
-            // chkWidth
-            // 
-            this.chkWidth.AutoSize = true;
-            this.chkWidth.Location = new System.Drawing.Point(5, 95);
-            this.chkWidth.Name = "chkWidth";
-            this.chkWidth.Size = new System.Drawing.Size(54, 16);
-            this.chkWidth.TabIndex = 4;
-            this.chkWidth.Text = "Width";
-            this.chkWidth.UseVisualStyleBackColor = true;
-            // 
-            // chkHeight
-            // 
-            this.chkHeight.AutoSize = true;
-            this.chkHeight.Location = new System.Drawing.Point(5, 130);
-            this.chkHeight.Name = "chkHeight";
-            this.chkHeight.Size = new System.Drawing.Size(59, 16);
-            this.chkHeight.TabIndex = 5;
-            this.chkHeight.Text = "Height";
-            this.chkHeight.UseVisualStyleBackColor = true;
-            // 
-            // txtMaxArea
-            // 
-            this.txtMaxArea.Location = new System.Drawing.Point(198, 55);
-            this.txtMaxArea.Name = "txtMaxArea";
-            this.txtMaxArea.Size = new System.Drawing.Size(100, 21);
-            this.txtMaxArea.TabIndex = 6;
-            // 
-            // txtMinArea
-            // 
-            this.txtMinArea.Location = new System.Drawing.Point(71, 55);
-            this.txtMinArea.Name = "txtMinArea";
-            this.txtMinArea.Size = new System.Drawing.Size(100, 21);
-            this.txtMinArea.TabIndex = 7;
-            // 
-            // txtMaxWidth
-            // 
-            this.txtMaxWidth.Location = new System.Drawing.Point(198, 91);
-            this.txtMaxWidth.Name = "txtMaxWidth";
-            this.txtMaxWidth.Size = new System.Drawing.Size(100, 21);
-            this.txtMaxWidth.TabIndex = 8;
-            // 
-            // txtMinWidth
-            // 
-            this.txtMinWidth.Location = new System.Drawing.Point(71, 91);
-            this.txtMinWidth.Name = "txtMinWidth";
-            this.txtMinWidth.Size = new System.Drawing.Size(100, 21);
-            this.txtMinWidth.TabIndex = 9;
-            // 
-            // txtMaxHeight
-            // 
-            this.txtMaxHeight.Location = new System.Drawing.Point(198, 128);
-            this.txtMaxHeight.Name = "txtMaxHeight";
-            this.txtMaxHeight.Size = new System.Drawing.Size(100, 21);
-            this.txtMaxHeight.TabIndex = 10;
-            // 
-            // txtMinHeight
-            // 
-            this.txtMinHeight.Location = new System.Drawing.Point(71, 128);
-            this.txtMinHeight.Name = "txtMinHeight";
-            this.txtMinHeight.Size = new System.Drawing.Size(100, 21);
-            this.txtMinHeight.TabIndex = 11;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(177, 60);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(14, 12);
-            this.label1.TabIndex = 12;
-            this.label1.Text = "~";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(176, 96);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(14, 12);
-            this.label2.TabIndex = 13;
-            this.label2.Text = "~";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(177, 130);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(14, 12);
-            this.label3.TabIndex = 14;
-            this.label3.Text = "~";
-            // 
-            // lblMin
-            // 
-            this.lblMin.AutoSize = true;
-            this.lblMin.Location = new System.Drawing.Point(102, 35);
-            this.lblMin.Name = "lblMin";
-            this.lblMin.Size = new System.Drawing.Size(26, 12);
-            this.lblMin.TabIndex = 15;
-            this.lblMin.Text = "Min";
-            // 
-            // lblMax
-            // 
-            this.lblMax.AutoSize = true;
-            this.lblMax.Location = new System.Drawing.Point(233, 35);
-            this.lblMax.Name = "lblMax";
-            this.lblMax.Size = new System.Drawing.Size(30, 12);
-            this.lblMax.TabIndex = 16;
-            this.lblMax.Text = "Max";
             // 
             // BinaryInspProp
             // 

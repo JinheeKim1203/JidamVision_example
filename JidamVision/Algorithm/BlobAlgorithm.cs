@@ -85,9 +85,9 @@ namespace JidamVision.Algorithm
             if (BinaryThreshold.invert)
                 binaryImage = ~binaryImage;
 
-            if (AreaFilter > 0)
+            if (MinAreaFilter > 0)
             {
-                if (!BlobFilter(binaryImage, AreaFilter))
+                if (!BlobFilter(binaryImage, MinAreaFilter, MaxAreaFilter))
                     return false;
             }
 
@@ -98,7 +98,7 @@ namespace JidamVision.Algorithm
 
 
         //#BINARY FILTER#3 이진화 필터처리 함수
-        private bool BlobFilter(Mat binImage, int areaFilter)
+        private bool BlobFilter(Mat binImage, int minAreaFilter, int maxAreaFilter)
         {
             // 컨투어 찾기
             Point[][] contours;
@@ -116,7 +116,7 @@ namespace JidamVision.Algorithm
             foreach (var contour in contours)
             {
                 double area = Cv2.ContourArea(contour);
-                if (area < areaFilter)
+                if (area < minAreaFilter || area > maxAreaFilter)
                     continue;
 
                 // 필터링된 객체를 이미지에 그림
