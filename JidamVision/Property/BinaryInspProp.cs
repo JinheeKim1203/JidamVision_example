@@ -74,6 +74,7 @@ namespace JidamVision.Property
                 {
                     int filterArea = blobAlgo.AreaFilter;
                     txtArea.Text = filterArea.ToString();
+
                 }
             }
         }

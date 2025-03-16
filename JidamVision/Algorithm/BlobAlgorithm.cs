@@ -29,6 +29,7 @@ namespace JidamVision.Algorithm
         //픽셀 영역으로 이진화 필터
         public int AreaFilter { get; set; } = 100;
 
+
         public BlobAlgorithm()
         {
               //#ABSTRACT ALGORITHM#5 각 함수마다 자신의 알고리즘 타입 설정
