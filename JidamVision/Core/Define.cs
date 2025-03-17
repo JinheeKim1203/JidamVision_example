@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace JidamVision.Core
 {
+    //#MODEL#1 InspWindowType 정의
+    public enum InspWindowType
+    {
+        None = 0,
+        Global,
+        Base,
+        Sub,
+        ID,
+        Group
+    }
     internal class Define
     {
         //# SAVE ROI#4 전역적으로, ROI 저장 파일명을 설정

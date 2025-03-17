@@ -23,13 +23,20 @@ namespace JidamVision.Teach
         //템플릿 매칭 이미지
         private Mat _teachingImage;
 
+        public InspWindowType InspWindowType {  get; private set; }
+
+        public string Name {  get; private set; }
+        public string UID { get; set; }
+
+        public Rect WindowArea { get; set; }
+
         //#ABSTRACT ALGORITHM#9 개별 변수로 있던, MatchAlgorithm과 BlobAlgorithm을
         //InspAlgorithm으로 추상화하여 리스트로 관리하도록 
 
         //private MatchAlgorithm _matchAlgorithm;
 
         //private List<OpenCvSharp.Point> _outPoints;
-        
+
         //public MatchAlgorithm MatchAlgorithm => _matchAlgorithm;
 
         ////#BINARY FILTER#5 이진화 알고리즘 추가
@@ -51,6 +58,14 @@ namespace JidamVision.Teach
 
             ////#BINARY FILTER#6 이진화 알고리즘 인스턴스 생성
             //_blobAlgorithm = new BlobAlgorithm();
+        }
+
+        public InspWindow(InspWindowType windowType, string name)
+        {
+            InspWindowType = windowType;
+            Name = name;
+            AddInspAlgorithm(InspectType.InspMatch);
+            AddInspAlgorithm(InspectType.InspBinary);
         }
 
         public bool SetTeachingImage(Mat image, Rectangle rect)
