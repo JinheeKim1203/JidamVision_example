@@ -30,7 +30,7 @@ namespace JidamVision.Algorithm
             AreaMax = 100000;
 
             UseWidthFilter = false;
-            WidthMin = 10;
+            WidthMin = 100;
             WidthMax = 100000;
 
             UseHeightFilter = false;
