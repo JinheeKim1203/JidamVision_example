@@ -8,21 +8,25 @@ using System.Threading.Tasks;
 
 namespace JidamVision.Algorithm
 {
-    //#FILTER APPLY# 체크박스, 텍스트박스 초기값 
+    // Blob 필터 조건을 정의하는 클래스 (UI 체크박스/텍스트박스와 연동)
     public class BlobFilterCondition
     {
+        // 면적 필터 사용 여부
         public bool UseAreaFilter { get; set; }
         public int AreaMin { get; set; }
         public int AreaMax { get; set; }
 
+        // 너비 필터 사용 여부
         public bool UseWidthFilter { get; set; }
         public int WidthMin { get; set; }
         public int WidthMax { get; set; }
 
+        // 높이 필터 사용 여부
         public bool UseHeightFilter { get; set; }
         public int HeightMin { get; set; }
         public int HeightMax { get; set; }
 
+        // 필터 조건 초기화 함수
         public void Reset()
         {
             UseAreaFilter = true;
@@ -61,7 +65,7 @@ namespace JidamVision.Algorithm
         {
               //#ABSTRACT ALGORITHM#5 각 함수마다 자신의 알고리즘 타입 설정
             InspectType = InspectType.InspBinary;
-            FilterCondition.Reset();
+            FilterCondition.Reset(); // 필터 조건 기본값 설정
         }
 
         //#BINARY FILTER#2 이진화 후, 필터를 이용해 원하는 영역을 얻음(doinspect = 핵심검사) 
@@ -113,6 +117,7 @@ namespace JidamVision.Algorithm
             if (BinaryThreshold.invert)
                 binaryImage = ~binaryImage;
 
+            // Blob 필터링 적용 (조건 기반 영역 추출)
             if (!BlobFilter(binaryImage, FilterCondition))
                 return false;
 
@@ -149,16 +154,16 @@ namespace JidamVision.Algorithm
                 // RotatedRect 정보 계산
                 //RotatedRect rotatedRect = Cv2.MinAreaRect(contour);
                 Rect boundingRect = Cv2.BoundingRect(contour);
-
+                // [면적 필터 조건] 적용
                 if (filter.UseAreaFilter && (area < filter.AreaMin || area > filter.AreaMax))
                     continue;
-
+                // [너비 필터 조건] 적용
                 if (filter.UseWidthFilter && (boundingRect.Width < filter.WidthMin || boundingRect.Width > filter.WidthMax))
                     continue;
-
+                // [높이 필터 조건] 적용
                 if (filter.UseHeightFilter && (boundingRect.Height < filter.HeightMin || boundingRect.Height > filter.HeightMax))
                     continue;
-
+                // 모든 조건 통과 시 결과 영역 추가
                 _findArea.Add(boundingRect);
 
                 // RotatedRect 정보 출력

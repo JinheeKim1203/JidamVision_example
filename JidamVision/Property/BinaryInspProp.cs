@@ -74,18 +74,21 @@ namespace JidamVision.Property
                 {
                     var cond = blobAlgo.FilterCondition;
 
+                    // 면적 필터 UI 반영
                     txtAreaMin.Text = cond.AreaMin.ToString();
                     txtAreaMax.Text = cond.AreaMax.ToString();
                     chkArea.Checked = cond.UseAreaFilter;
                     txtAreaMin.Enabled = chkArea.Checked;
                     txtAreaMax.Enabled = chkArea.Checked;
 
+                    // 너비 필터 UI 반영
                     txtWidthMin.Text = cond.WidthMin.ToString();
                     txtWidthMax.Text = cond.WidthMax.ToString();
                     chkWidth.Checked = cond.UseWidthFilter;
                     txtWidthMin.Enabled = chkWidth.Checked;
                     txtWidthMax.Enabled = chkWidth.Checked;
 
+                    // 높이 필터 UI 반영
                     txtHeightMin.Text = cond.HeightMin.ToString();
                     txtHeightMax.Text = cond.HeightMax.ToString();
                     chkHeight.Checked = cond.UseHeightFilter;
@@ -137,6 +140,7 @@ namespace JidamVision.Property
             UpdateBinary();
         }
 
+        // ▶ 체크박스 선택 시 TextBox 활성/비활성
         private void chkArea_CheckedChanged(object sender, EventArgs e)
         {
             txtAreaMin.Enabled = chkArea.Checked;
@@ -160,8 +164,10 @@ namespace JidamVision.Property
             if (blobAlgo == null) return;
             var cond = blobAlgo.FilterCondition;
 
+            //int.Parse 예외처리(값이 올바르지 않으면 오류가 남)
             try
             {
+                // 면적 조건
                 cond.UseAreaFilter = chkArea.Checked;
                 if (chkArea.Checked)
                 {
@@ -169,7 +175,8 @@ namespace JidamVision.Property
                     cond.AreaMax = int.Parse(txtAreaMax.Text);
                     if (cond.AreaMax <= 0) cond.AreaMax = int.MaxValue;
                 }
-
+               
+                // 너비 조건
                 cond.UseWidthFilter = chkWidth.Checked;
                 if (chkWidth.Checked)
                 {
@@ -177,7 +184,8 @@ namespace JidamVision.Property
                     cond.WidthMax = int.Parse(txtWidthMax.Text);
                     if (cond.WidthMax <= 0) cond.WidthMax = int.MaxValue;
                 }
-
+               
+                // 높이 조건
                 cond.UseHeightFilter = chkHeight.Checked;
                 if (chkHeight.Checked)
                 {
@@ -190,16 +198,17 @@ namespace JidamVision.Property
             {
                 MessageBox.Show("필터 값이 잘못되었습니다.\n" + ex.Message, "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-
+            
+            // 필터 조건 반영
             blobAlgo.FilterCondition = cond;
         }
-        
+
 
 
         private void btnFilter_Click(object sender, EventArgs e)
         {
             InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if(inspWindow is null)
+            if (inspWindow is null)
                 return;
 
             //#INSP WORKER#9 inspWindow에서 이진화 알고리즘 찾는 코드 추가 
@@ -214,9 +223,7 @@ namespace JidamVision.Property
 
             blobAlgo.BinaryThreshold = threshold;
 
-            int filterAreaMin = int.Parse(txtAreaMin.Text);
-            int filterAreaMax = int.Parse(txtAreaMax.Text);
-
+            // 필터 조건 업데이트(최소값, 최대값 입력 시 업데이트)
             UpdateBlobFilter(blobAlgo);
 
             //#INSP WORKER#10 이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
@@ -239,10 +246,7 @@ namespace JidamVision.Property
             //    }
             //}
         }
-
-
     }
-
 
     //#BINARY FILTER#9 이진화 관련 이벤트 발생시, 전달할 값 추가(arguement를 추가하는거)
     public class RangeChangedEventArgs : EventArgs
