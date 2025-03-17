@@ -72,8 +72,25 @@ namespace JidamVision.Property
                 BlobAlgorithm blobAlgo = (BlobAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspBinary);
                 if (blobAlgo != null)
                 {
-                    int filterArea = blobAlgo.AreaFilter;
-                    txtArea.Text = filterArea.ToString();
+                    var cond = blobAlgo.FilterCondition;
+
+                    txtAreaMin.Text = cond.AreaMin.ToString();
+                    txtAreaMax.Text = cond.AreaMax.ToString();
+                    chkArea.Checked = cond.UseAreaFilter;
+                    txtAreaMin.Enabled = chkArea.Checked;
+                    txtAreaMax.Enabled = chkArea.Checked;
+
+                    txtWidthMin.Text = cond.WidthMin.ToString();
+                    txtWidthMax.Text = cond.WidthMax.ToString();
+                    chkWidth.Checked = cond.UseWidthFilter;
+                    txtWidthMin.Enabled = chkWidth.Checked;
+                    txtWidthMax.Enabled = chkWidth.Checked;
+
+                    txtHeightMin.Text = cond.HeightMin.ToString();
+                    txtHeightMax.Text = cond.HeightMax.ToString();
+                    chkHeight.Checked = cond.UseHeightFilter;
+                    txtHeightMin.Enabled = chkHeight.Checked;
+                    txtHeightMax.Enabled = chkHeight.Checked;
 
                 }
             }
@@ -120,6 +137,65 @@ namespace JidamVision.Property
             UpdateBinary();
         }
 
+        private void chkArea_CheckedChanged(object sender, EventArgs e)
+        {
+            txtAreaMin.Enabled = chkArea.Checked;
+            txtAreaMax.Enabled = chkArea.Checked;
+        }
+
+        private void chkWidth_CheckedChanged(object sender, EventArgs e)
+        {
+            txtWidthMin.Enabled = chkWidth.Checked;
+            txtWidthMax.Enabled = chkWidth.Checked;
+        }
+
+        private void chkHeight_CheckedChanged(object sender, EventArgs e)
+        {
+            txtHeightMin.Enabled = chkHeight.Checked;
+            txtHeightMax.Enabled = chkHeight.Checked;
+        }
+
+        private void UpdateBlobFilter(BlobAlgorithm blobAlgo)
+        {
+            if (blobAlgo == null) return;
+            var cond = blobAlgo.FilterCondition;
+
+            try
+            {
+                cond.UseAreaFilter = chkArea.Checked;
+                if (chkArea.Checked)
+                {
+                    cond.AreaMin = int.Parse(txtAreaMin.Text);
+                    cond.AreaMax = int.Parse(txtAreaMax.Text);
+                    if (cond.AreaMax <= 0) cond.AreaMax = int.MaxValue;
+                }
+
+                cond.UseWidthFilter = chkWidth.Checked;
+                if (chkWidth.Checked)
+                {
+                    cond.WidthMin = int.Parse(txtWidthMin.Text);
+                    cond.WidthMax = int.Parse(txtWidthMax.Text);
+                    if (cond.WidthMax <= 0) cond.WidthMax = int.MaxValue;
+                }
+
+                cond.UseHeightFilter = chkHeight.Checked;
+                if (chkHeight.Checked)
+                {
+                    cond.HeightMin = int.Parse(txtHeightMin.Text);
+                    cond.HeightMax = int.Parse(txtHeightMax.Text);
+                    if (cond.HeightMax <= 0) cond.HeightMax = int.MaxValue;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("필터 값이 잘못되었습니다.\n" + ex.Message, "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            blobAlgo.FilterCondition = cond;
+        }
+        
+
+
         private void btnFilter_Click(object sender, EventArgs e)
         {
             InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
@@ -138,8 +214,10 @@ namespace JidamVision.Property
 
             blobAlgo.BinaryThreshold = threshold;
 
-            int filterArea = int.Parse(txtArea.Text);
-            blobAlgo.AreaFilter = filterArea;
+            int filterAreaMin = int.Parse(txtAreaMin.Text);
+            int filterAreaMax = int.Parse(txtAreaMax.Text);
+
+            UpdateBlobFilter(blobAlgo);
 
             //#INSP WORKER#10 이진화 검사시, 해당 InspWindow와 이진화 알고리즘만 실행
             Global.Inst.InspStage.InspWorker.TryInspect(inspWindow, InspectType.InspBinary);
@@ -161,6 +239,8 @@ namespace JidamVision.Property
             //    }
             //}
         }
+
+
     }
 
 
