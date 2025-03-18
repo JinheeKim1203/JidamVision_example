@@ -1,4 +1,5 @@
 ﻿using JidamVision.Core;
+using JidamVision.Setting;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -116,6 +117,12 @@ namespace JidamVision
                 }
             }
 
+        }
+
+        private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SetupForm setupForm = new SetupForm();
+            setupForm.ShowDialog();
         }
     }
 }

@@ -34,6 +34,8 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageFilterToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.setupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setupToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -43,10 +45,11 @@
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.imageFilterToolStripMenuItem});
+            this.imageFilterToolStripMenuItem,
+            this.setupToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1143, 35);
+            this.menuStrip1.Size = new System.Drawing.Size(1143, 33);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -62,14 +65,14 @@
             // imageLoadToolStripMenuItem
             // 
             this.imageLoadToolStripMenuItem.Name = "imageLoadToolStripMenuItem";
-            this.imageLoadToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.imageLoadToolStripMenuItem.Size = new System.Drawing.Size(204, 34);
             this.imageLoadToolStripMenuItem.Text = "imageLoad";
             this.imageLoadToolStripMenuItem.Click += new System.EventHandler(this.imageLoadToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(204, 34);
             this.saveToolStripMenuItem.Text = "imageSave";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -84,8 +87,23 @@
             // imageFilterToolStripMenuItem1
             // 
             this.imageFilterToolStripMenuItem1.Name = "imageFilterToolStripMenuItem1";
-            this.imageFilterToolStripMenuItem1.Size = new System.Drawing.Size(270, 34);
+            this.imageFilterToolStripMenuItem1.Size = new System.Drawing.Size(210, 34);
             this.imageFilterToolStripMenuItem1.Text = "Image Filter";
+            // 
+            // setupToolStripMenuItem
+            // 
+            this.setupToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setupToolStripMenuItem1});
+            this.setupToolStripMenuItem.Name = "setupToolStripMenuItem";
+            this.setupToolStripMenuItem.Size = new System.Drawing.Size(75, 29);
+            this.setupToolStripMenuItem.Text = "Setup";
+            // 
+            // setupToolStripMenuItem1
+            // 
+            this.setupToolStripMenuItem1.Name = "setupToolStripMenuItem1";
+            this.setupToolStripMenuItem1.Size = new System.Drawing.Size(270, 34);
+            this.setupToolStripMenuItem1.Text = "Setup";
+            this.setupToolStripMenuItem1.Click += new System.EventHandler(this.setupToolStripMenuItem1_Click);
             // 
             // MainForm
             // 
@@ -94,7 +112,7 @@
             this.ClientSize = new System.Drawing.Size(1143, 675);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "MainForm";
             this.menuStrip1.ResumeLayout(false);
@@ -112,5 +130,7 @@
         private System.Windows.Forms.ToolStripMenuItem imageFilterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem imageFilterToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem setupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setupToolStripMenuItem1;
     }
 }
