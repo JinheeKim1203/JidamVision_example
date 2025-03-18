@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenCvSharp;
+using JidamVision;
 
 namespace JidamVision.Inspect
 {
@@ -126,7 +127,6 @@ namespace JidamVision.Inspect
                 {
                     cameraForm.AddRect(totalArea);
                 }
-
             }
 
             return true;

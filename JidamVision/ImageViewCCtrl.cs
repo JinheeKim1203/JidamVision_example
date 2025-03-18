@@ -811,8 +811,10 @@ namespace JidamVision
         public void AddRect(List<Rectangle> rectangles)
         {
             _rectangles = rectangles;
+
             Invalidate();
         }
+
 
         public bool SetDiagramEntityList(List<DiagramEntity> diagramEntityList)
         {
