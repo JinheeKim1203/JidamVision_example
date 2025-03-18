@@ -53,6 +53,8 @@ namespace JidamVision.Teach
             //#ABSTRACT ALGORITHM#13 매칭 알고리즘과 이진화 알고리즘 추가
             AddInspAlgorithm(InspectType.InspMatch);
             AddInspAlgorithm(InspectType.InspBinary);
+            AddInspAlgorithm(InspectType.InspFm);
+
 
             //_matchAlgorithm = new MatchAlgorithm();
 
@@ -66,6 +68,7 @@ namespace JidamVision.Teach
             Name = name;
             AddInspAlgorithm(InspectType.InspMatch);
             AddInspAlgorithm(InspectType.InspBinary);
+            AddInspAlgorithm(InspectType.InspFm);
         }
 
         public bool SetTeachingImage(Mat image, Rectangle rect)
@@ -126,6 +129,9 @@ namespace JidamVision.Teach
                     break;
                 case InspectType.InspMatch:
                     inspAlgo = new MatchAlgorithm();
+                    break;
+                case InspectType.InspFm:
+                    inspAlgo = new FmInspAlgorithm();
                     break;
             }
 

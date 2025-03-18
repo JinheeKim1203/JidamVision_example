@@ -25,12 +25,7 @@ namespace JidamVision.Core
         WCF
     }
 
-    public enum DiffGVColor
-    {
-        White = 0,
-        Black,
-        All  
-    }
+
     internal class Define
     {
         //# SAVE ROI#4 전역적으로, ROI 저장 파일명을 설정

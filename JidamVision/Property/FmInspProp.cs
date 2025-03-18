@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static JidamVision.Algorithm.FmInspAlgorithm;
 using static System.Windows.Forms.MonthCalendar;
 
 namespace JidamVision.Property
@@ -22,9 +23,6 @@ namespace JidamVision.Property
         public FmInspProp()
         {
             InitializeComponent();
-
-            //최초 로딩시, 환경설정 정보 로딩
-            LoadSetting();
         }
 
         public void LoadInspParam()
@@ -32,31 +30,26 @@ namespace JidamVision.Property
 
             //#BINARY FILTER#8 이진화 필터값을 GUI에 로딩
             InspWindow inspWindow = Global.Inst.InspStage.InspWindow;
-            if (inspWindow != null)
-            {
-                //#INSP WORKER#13 inspWindow에서 이진화 알고리즘 찾는 코드
-                FmInspAlgorithm fmAlgo = (FmInspAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspFm);
-                if (fmAlgo != null)
-                {
-                    int diffGv = fmAlgo.DifferanceGv;
-                    txtDiffGv.Text = diffGv.ToString();
+            if (inspWindow is null)
+                return;
 
-                    int sizeX = fmAlgo.SizeX;
-                    txtSizeX.Text = sizeX.ToString();
+            //#INSP WORKER#13 inspWindow에서 이진화 알고리즘 찾는 코드
+            FmInspAlgorithm fmAlgo = (FmInspAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspFm);
+            if (fmAlgo is null)
+                return;
 
-                    int sizeY = fmAlgo.SizeY;
-                    txtSizeY.Text = sizeY.ToString();
-                }
-            }
+            int diffGv = fmAlgo.DifferanceGv;
+            txtDiffGv.Text = diffGv.ToString();
 
-        }
+            OpenCvSharp.Size size = fmAlgo.size;
 
-        private void LoadSetting()
-        {
+            txtSizeX.Text = size.Width.ToString();
+            txtSizeY.Text = size.Height.ToString();
+
             //컬러 타입을 콤보박스에 추가
             cbDiffGvColor.DataSource = Enum.GetValues(typeof(DiffGVColor)).Cast<DiffGVColor>().ToList();
-            //환경설정에서 현재 컬러 타입 얻기
-            cbDiffGvColor.SelectedIndex = (int)SettingXml.Inst.CamType;
+
+
         }
     }
 }

@@ -106,7 +106,6 @@ namespace JidamVision.Setting
 
         public NetworkType NetType { get; set; } = NetworkType.None;
 
-        public DiffGVColor DiffGvColor { get; set; } = DiffGVColor.White;
 
     }
 }
