@@ -143,6 +143,14 @@ namespace JidamVision
                 case InspWindowType.ID:
                     color = Color.Cyan;
                     break;
+
+                case InspWindowType.Head:
+                    color = Color.Yellow;
+                    break;
+
+                case InspWindowType.Body:
+                    color = Color.Lavender;
+                    break;
             }
             return color;
         }

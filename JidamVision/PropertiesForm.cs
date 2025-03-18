@@ -30,6 +30,7 @@ namespace JidamVision
         InspNone = -1,
         InspBinary,
         InspMatch,
+        InspFm,
         InspCount
 
     }
@@ -90,6 +91,11 @@ namespace JidamVision
                     MatchInspProp matchProp = new MatchInspProp();
                     matchProp.LoadInspParam();
                     _inspProp = matchProp;
+                    break;
+                case InspectType.InspFm:
+                    FmInspProp fmProp = new FmInspProp();
+                    fmProp.LoadInspParam();
+                    _inspProp = fmProp;
                     break;
                 default:
                     MessageBox.Show("유효하지 않은 옵션입니다.");

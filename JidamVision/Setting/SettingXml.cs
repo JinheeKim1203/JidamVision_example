@@ -1,4 +1,5 @@
 ﻿using Common.Util.Helpers;
+using JidamVision.Core;
 using JidamVision.Grab;
 using System;
 using System.Collections.Generic;
@@ -98,8 +99,14 @@ namespace JidamVision.Setting
         public SettingXml() { }
 
         public string ModelDir { get; set; } = "";
+        public string IpAddress { get; set; } = "";
+
 
         public CameraType CamType { get; set; } = CameraType.WebCam;
+
+        public NetworkType NetType { get; set; } = NetworkType.None;
+
+        public DiffGVColor DiffGvColor { get; set; } = DiffGVColor.White;
 
     }
 }

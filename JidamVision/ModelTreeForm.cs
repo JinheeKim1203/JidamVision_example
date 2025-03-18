@@ -32,10 +32,16 @@ namespace JidamVision
             ToolStripMenuItem addBaseRoiItem = new ToolStripMenuItem("Base", null, AddNode_Click) { Tag = "Base" };
             ToolStripMenuItem addSubRoiItem = new ToolStripMenuItem("Sub", null, AddNode_Click) { Tag = "Sub" };
             ToolStripMenuItem addIdRoiItem = new ToolStripMenuItem("ID", null, AddNode_Click) { Tag = "ID" };
+            ToolStripMenuItem addHeadRoiItem = new ToolStripMenuItem("Head", null, AddNode_Click) { Tag = "Head" };
+            ToolStripMenuItem addBodyRoiItem = new ToolStripMenuItem("Body", null, AddNode_Click) { Tag = "Body" };
+
 
             _contextMenu.Items.Add(addBaseRoiItem);
             _contextMenu.Items.Add(addSubRoiItem);
             _contextMenu.Items.Add(addIdRoiItem);
+            _contextMenu.Items.Add(addHeadRoiItem);
+            _contextMenu.Items.Add(addBodyRoiItem);
+
         }
 
         private void tvModelTree_MouseDown(object sender, MouseEventArgs e)
@@ -71,6 +77,14 @@ namespace JidamVision
                 else if (nodeType == "ID")
                 {
                     AddNewROI(InspWindowType.ID);
+                }
+                else if (nodeType == "Head")
+                {
+                    AddNewROI(InspWindowType.Head);
+                }
+                else if (nodeType == "Body")
+                {
+                    AddNewROI(InspWindowType.Body);
                 }
             }
         }

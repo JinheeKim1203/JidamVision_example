@@ -39,6 +39,10 @@ namespace JidamVision.Setting
             PathSetting pathSetting = new PathSetting();
             AddTabControl(pathSetting, "Path");
 
+            //경로 설정 페이지 추가
+            NetworkSetting networkSetting = new NetworkSetting();
+            AddTabControl(networkSetting, "Network");
+
             //기본값으로 카메라 설정 페이지 보이도록 설정
             tabSetting.SelectTab(0);
         }

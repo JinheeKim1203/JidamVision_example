@@ -14,7 +14,22 @@ namespace JidamVision.Core
         Base,
         Sub,
         ID,
+        Head,
+        Body,
         Group
+    }
+
+    public enum NetworkType
+    { 
+        None = 0,
+        WCF
+    }
+
+    public enum DiffGVColor
+    {
+        White = 0,
+        Black,
+        All  
     }
     internal class Define
     {
