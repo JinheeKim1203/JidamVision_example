@@ -170,6 +170,25 @@
     <Compile Include="ResultForm.Designer.cs">
       <DependentUpon>ResultForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="setting\CameraSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="setting\CameraSetting.Designer.cs">
+      <DependentUpon>CameraSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="setting\PathSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="setting\PathSetting.Designer.cs">
+      <DependentUpon>PathSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="setting\SettingXml.cs" />
+    <Compile Include="setting\SetupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="setting\SetupForm.Designer.cs">
+      <DependentUpon>SetupForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="StatisticForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -178,6 +197,7 @@
     </Compile>
     <Compile Include="Teach\InspWindow.cs" />
     <Compile Include="Util\BitmapExtension.cs" />
+    <Compile Include="Util\XmlHelper.cs" />
     <EmbeddedResource Include="CameraForm.resx">
       <DependentUpon>CameraForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -213,6 +233,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ResultForm.resx">
       <DependentUpon>ResultForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="setting\CameraSetting.resx">
+      <DependentUpon>CameraSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="setting\PathSetting.resx">
+      <DependentUpon>PathSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="setting\SetupForm.resx">
+      <DependentUpon>SetupForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
