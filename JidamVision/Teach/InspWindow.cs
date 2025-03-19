@@ -38,7 +38,7 @@ namespace JidamVision.Teach
         //InspAlgorithm으로 추상화하여 리스트로 관리하도록 
 
         //#MODEL SAVE#6 Xml Serialize를 위해서, Element을 명확하게 알려줘야 함
-        [XmlElement("InspAlgorithm")]
+        //[XmlElement("InspAlgorithm")]
 
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
 

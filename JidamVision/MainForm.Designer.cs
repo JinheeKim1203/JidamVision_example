@@ -30,16 +30,17 @@
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageLoadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modelNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modelOpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.modelSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.modelSaveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageLoadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageFilterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageFilterToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.setupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setupToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.modelSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.modelSaveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,11 +65,40 @@
             this.modelOpenToolStripMenuItem,
             this.modelSaveToolStripMenuItem,
             this.modelSaveAsToolStripMenuItem,
+            this.toolStripSeparator1,
             this.imageLoadToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(55, 29);
             this.fileToolStripMenuItem.Text = "File";
+            // 
+            // modelNewToolStripMenuItem
+            // 
+            this.modelNewToolStripMenuItem.Name = "modelNewToolStripMenuItem";
+            this.modelNewToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.modelNewToolStripMenuItem.Text = "Model New";
+            this.modelNewToolStripMenuItem.Click += new System.EventHandler(this.modelNewToolStripMenuItem_Click);
+            // 
+            // modelOpenToolStripMenuItem
+            // 
+            this.modelOpenToolStripMenuItem.Name = "modelOpenToolStripMenuItem";
+            this.modelOpenToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.modelOpenToolStripMenuItem.Text = "Model Open";
+            this.modelOpenToolStripMenuItem.Click += new System.EventHandler(this.modelOpenToolStripMenuItem_Click);
+            // 
+            // modelSaveToolStripMenuItem
+            // 
+            this.modelSaveToolStripMenuItem.Name = "modelSaveToolStripMenuItem";
+            this.modelSaveToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.modelSaveToolStripMenuItem.Text = "Model Save";
+            this.modelSaveToolStripMenuItem.Click += new System.EventHandler(this.modelSaveToolStripMenuItem_Click);
+            // 
+            // modelSaveAsToolStripMenuItem
+            // 
+            this.modelSaveAsToolStripMenuItem.Name = "modelSaveAsToolStripMenuItem";
+            this.modelSaveAsToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.modelSaveAsToolStripMenuItem.Text = "Model SaveAs";
+            this.modelSaveAsToolStripMenuItem.Click += new System.EventHandler(this.modelSaveAsToolStripMenuItem_Click);
             // 
             // imageLoadToolStripMenuItem
             // 
@@ -85,20 +115,6 @@
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.saveToolStripMenuItem.Text = "imageSave";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
-            // 
-            // modelNewToolStripMenuItem
-            // 
-            this.modelNewToolStripMenuItem.Name = "modelNewToolStripMenuItem";
-            this.modelNewToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelNewToolStripMenuItem.Text = "Model New";
-            this.modelNewToolStripMenuItem.Click += new System.EventHandler(this.modelNewToolStripMenuItem_Click);
-            // 
-            // modelOpenToolStripMenuItem
-            // 
-            this.modelOpenToolStripMenuItem.Name = "modelOpenToolStripMenuItem";
-            this.modelOpenToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelOpenToolStripMenuItem.Text = "Model Open";
-            this.modelOpenToolStripMenuItem.Click += new System.EventHandler(this.modelOpenToolStripMenuItem_Click);
             // 
             // imageFilterToolStripMenuItem
             // 
@@ -129,19 +145,10 @@
             this.setupToolStripMenuItem1.Text = "Setup";
             this.setupToolStripMenuItem1.Click += new System.EventHandler(this.setupToolStripMenuItem1_Click);
             // 
-            // modelSaveToolStripMenuItem
+            // toolStripSeparator1
             // 
-            this.modelSaveToolStripMenuItem.Name = "modelSaveToolStripMenuItem";
-            this.modelSaveToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelSaveToolStripMenuItem.Text = "Model Save";
-            this.modelSaveToolStripMenuItem.Click += new System.EventHandler(this.modelSaveToolStripMenuItem_Click);
-            // 
-            // modelSaveAsToolStripMenuItem
-            // 
-            this.modelSaveAsToolStripMenuItem.Name = "modelSaveAsToolStripMenuItem";
-            this.modelSaveAsToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.modelSaveAsToolStripMenuItem.Text = "Model SaveAs";
-            this.modelSaveAsToolStripMenuItem.Click += new System.EventHandler(this.modelSaveAsToolStripMenuItem_Click);
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(267, 6);
             // 
             // MainForm
             // 
@@ -174,5 +181,6 @@
         private System.Windows.Forms.ToolStripMenuItem modelOpenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem modelSaveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem modelSaveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
