@@ -30,6 +30,7 @@ namespace JidamVision
         InspNone = -1,
         InspBinary,
         InspMatch,
+        InspFilter,
         InspFm,
         InspCount
 
@@ -91,6 +92,11 @@ namespace JidamVision
                     MatchInspProp matchProp = new MatchInspProp();
                     matchProp.LoadInspParam();
                     _inspProp = matchProp;
+                    break;
+                case InspectType.InspFilter:
+                    FilterInspProp filterProp = new FilterInspProp();
+                    filterProp.FilterSelected += FilterSelect_FilterChanged;
+                    _inspProp = filterProp;
                     break;
                 case InspectType.InspFm:
                     FmInspProp fmProp = new FmInspProp();

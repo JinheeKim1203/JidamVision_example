@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Util.Helpers;
 using JidamVision.Core;
 using OpenCvSharp;
 
@@ -16,6 +18,11 @@ namespace JidamVision.Teach
     //#MODEL#3 모델 클래스 생성
     public class Model
     {
+        //#MODEL SAVE#1 모델 정보 저장을 위해 추가한 프로퍼티
+        public string ModelName { get; set; } = "";
+        public string ModelInfo { get; set; } = "";
+        public string ModelPath { get; set; } = "";
+
         //#MODEL#1 InspStage에 있던 InspWindowList 위치를 이곳으로 변경
         public List<InspWindow> InspWindowList { get; set; }
 
@@ -42,6 +49,44 @@ namespace JidamVision.Teach
                 return true;
             }
             return false;
+        }
+
+        //#MODEL SAVE#2 모델 생성,열기,저장을 위한 함수 구현
+
+        //신규 모델 생성
+        public void CreateModel(string path, string modelName, string modelInfo)
+        {
+            ModelPath = path;
+            ModelName = modelName;
+            ModelInfo = modelInfo;
+        }
+
+        //모델 로딩함수
+        public Model Load(string path)
+        {
+            Model model = XmlHelper.LoadXml<Model>(path);
+            if (model == null)
+                return null;
+            
+            return model;
+        }
+
+        //모델 저장함수
+        public void Save()
+        {
+            XmlHelper.SaveXml(ModelPath, this);
+        }
+
+        //모델 다른 이름으로 저장함수
+        public void SaveAs(string filePath)
+        {
+            string fileName = Path.GetFileName(filePath); 
+            if(Directory.Exists(fileName) == false)
+            {
+                ModelPath = Path.Combine(filePath, fileName + ".xml");
+                ModelName = fileName;
+                Save();
+            }
         }
     }
 }

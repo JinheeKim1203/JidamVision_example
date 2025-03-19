@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JidamVision.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -22,12 +23,12 @@ namespace JidamVision.Property
             InitializeComponent();
         }
 
-        private void cmbSelectFilter1_SelectedIndexChanged(object sender, EventArgs e)
+        private void cmbSelectFilter1_SelectedIndexChanged_1(object sender, EventArgs e)
         {
             //만약 이 콤보박스를 눌러서 적용할 효과를 선택하면 각 효과에 따라 밑에 뜨는 콤보박스목록이 달라야함.
             _cmbSelectedFilter1 = Convert.ToString(cmbSelectFilter1.SelectedItem); //선택한 효과 적용
             cmbSelectFilter2.Items.Clear(); // 이전 항목들을 지우고 새 항목을 추가
-            if (_cmbSelectedFilter1== "연산")
+            if (_cmbSelectedFilter1 == "연산")
             {
                 cmbSelectFilter2.Items.Add("더하기");
                 cmbSelectFilter2.Items.Add("빼기");
@@ -40,7 +41,7 @@ namespace JidamVision.Property
                 cmbSelectFilter2.Show();
 
             }
-            else if (_cmbSelectedFilter1== "비트연산")
+            else if (_cmbSelectedFilter1 == "비트연산")
             {
                 cmbSelectFilter2.Items.Add("AND 연산");
                 cmbSelectFilter2.Items.Add("OR 연산");
@@ -49,7 +50,7 @@ namespace JidamVision.Property
                 cmbSelectFilter2.Show();
 
             }
-            else if (_cmbSelectedFilter1== "블러링")
+            else if (_cmbSelectedFilter1 == "블러링")
             {
                 cmbSelectFilter2.Items.Add("블러 필터");
                 cmbSelectFilter2.Items.Add("박스 필터");
@@ -59,7 +60,7 @@ namespace JidamVision.Property
                 cmbSelectFilter2.Show();
 
             }
-            else if (_cmbSelectedFilter1== "엣지")
+            else if (_cmbSelectedFilter1 == "엣지")
             {
                 cmbSelectFilter2.Items.Add("Sobel 필터");
                 cmbSelectFilter2.Items.Add("Scharr 필터");
@@ -73,10 +74,13 @@ namespace JidamVision.Property
                 cmbSelectFilter2.Hide();
 
             }
-
-
-
         }
+
+        private void cmbSelectFilter2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _cmbSelectedFilter2 = Convert.ToInt32(cmbSelectFilter2.SelectedIndex);// 선택된 인덱스를 저장
+        }
+
         public class FilterSelectedEventArgs : EventArgs
         {
             public string FilterSelected1 { get; }  //적용할 필터효과
@@ -92,19 +96,18 @@ namespace JidamVision.Property
 
         private void btnapply_Click(object sender, EventArgs e)
         {
+            if (_cmbSelectedFilter1 == null || _cmbSelectedFilter2 == -1) // 두 번째 효과가 선택되지 않은 경우
             {
-                if (_cmbSelectedFilter1 == null || _cmbSelectedFilter2 == -1) // 두 번째 효과가 선택되지 않은 경우
-                {
-                    MessageBox.Show("효과를 선택해주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                FilterSelected?.Invoke(this, new FilterSelectedEventArgs(_cmbSelectedFilter1, _cmbSelectedFilter2));
+                MessageBox.Show("효과를 선택해주세요.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+            FilterSelected?.Invoke(this, new FilterSelectedEventArgs(_cmbSelectedFilter1, _cmbSelectedFilter2));
+
+
         }
 
-        private void cmbSelectFilter2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _cmbSelectedFilter2 = Convert.ToInt32(cmbSelectFilter2.SelectedIndex);// 선택된 인덱스를 저장
-        }
+
+
+
     }
 }

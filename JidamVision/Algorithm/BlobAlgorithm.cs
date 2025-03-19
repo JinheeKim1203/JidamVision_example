@@ -196,7 +196,7 @@ namespace JidamVision.Algorithm
             if (!IsInspected)
                 return -1;
 
-            if (_findArea is null || _findArea.Count <= 0)
+            if (_findArea is null )
                 return -1;
 
             resultArea = _findArea;

@@ -79,6 +79,7 @@
             this.cmbSelectFilter1.Size = new System.Drawing.Size(232, 26);
             this.cmbSelectFilter1.TabIndex = 0;
             this.cmbSelectFilter1.Text = "적용할 필터를 선택하세요";
+            this.cmbSelectFilter1.SelectedIndexChanged += new System.EventHandler(this.cmbSelectFilter1_SelectedIndexChanged_1);
             this.cmbSelectFilter1.Enter += new System.EventHandler(this.cmbSelectFilter2_SelectedIndexChanged);
             // 
             // FilterInspProp

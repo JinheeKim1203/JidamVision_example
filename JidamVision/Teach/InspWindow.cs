@@ -9,6 +9,7 @@ using JidamVision.Core;
 using System.Drawing;
 using System.Security.Policy;
 using System.IO;
+using System.Xml.Serialization;
 
 
 namespace JidamVision.Teach
@@ -23,9 +24,12 @@ namespace JidamVision.Teach
         //템플릿 매칭 이미지
         private Mat _teachingImage;
 
-        public InspWindowType InspWindowType {  get; private set; }
+        public InspWindowType InspWindowType {  get; set; }
 
-        public string Name {  get; private set; }
+        //#MODEL SAVE#5 모델 저장을 위한 Serialize를 위해서, prvate set -> set으로 변경
+        //public string Name {  get; private set; }
+        public string Name { get; set; }
+
         public string UID { get; set; }
 
         public Rect WindowArea { get; set; }
@@ -33,33 +37,17 @@ namespace JidamVision.Teach
         //#ABSTRACT ALGORITHM#9 개별 변수로 있던, MatchAlgorithm과 BlobAlgorithm을
         //InspAlgorithm으로 추상화하여 리스트로 관리하도록 
 
-        //private MatchAlgorithm _matchAlgorithm;
-
-        //private List<OpenCvSharp.Point> _outPoints;
-
-        //public MatchAlgorithm MatchAlgorithm => _matchAlgorithm;
-
-        ////#BINARY FILTER#5 이진화 알고리즘 추가
-        ////이진화 검사 클래스
-        //private BlobAlgorithm _blobAlgorithm;
-
-        //public BlobAlgorithm BlobAlgorithm => _blobAlgorithm;
+        //#MODEL SAVE#6 Xml Serialize를 위해서, Element을 명확하게 알려줘야 함
+        [XmlElement("InspAlgorithm")]
 
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
 
         public InspWindow()
         {
-
             //#ABSTRACT ALGORITHM#13 매칭 알고리즘과 이진화 알고리즘 추가
             AddInspAlgorithm(InspectType.InspMatch);
             AddInspAlgorithm(InspectType.InspBinary);
             AddInspAlgorithm(InspectType.InspFm);
-
-
-            //_matchAlgorithm = new MatchAlgorithm();
-
-            ////#BINARY FILTER#6 이진화 알고리즘 인스턴스 생성
-            //_blobAlgorithm = new BlobAlgorithm();
         }
 
         public InspWindow(InspWindowType windowType, string name)
@@ -81,22 +69,7 @@ namespace JidamVision.Teach
 
         //#MATCH PROP#4 템플릿 매칭 이미지 로딩
         public bool PatternLearn()
-        {
-
-            //if (_matchAlgorithm == null)
-            //    return false;
-
-            //string templatePath = Path.Combine(Directory.GetCurrentDirectory(), Define.ROI_IMAGE_NAME);
-            //if (File.Exists(templatePath))
-            //{
-            //    _teachingImage = Cv2.ImRead(templatePath);
-
-            //    if (_teachingImage != null)
-            //        _matchAlgorithm.SetTemplateImage(_teachingImage);
-            //}
-
-            //return true;
-
+        { 
             foreach (var algorithm in AlgorithmList)
             {
                 if (algorithm.InspectType != InspectType.InspMatch)
@@ -155,7 +128,6 @@ namespace JidamVision.Teach
             return null;
         }
 
-        //#MATCH PROP#5 템플릿 매칭 검사
         //#ABSTRACT ALGORITHM#12 클래스 내에서, 인자로 입력된 타입의 알고리즘을 검사하거나,
         ///모든 알고리즘을 검사하는 옵션을 가지는 검사 함수
         public bool DoInspect(InspectType inspType)
@@ -164,50 +136,8 @@ namespace JidamVision.Teach
             {
                 if (inspAlgo.InspectType == inspType || inspAlgo.InspectType == InspectType.InspNone)
                     inspAlgo.DoInspect();
-              
             }
-                //if (_teachingImage is null)
-                //    return false;
-
-                //if (_matchAlgorithm is null)
-                //    _matchAlgorithm = new MatchAlgorithm();
-
-                //Mat srcImage = Global.Inst.InspStage.GetMat();
-
-                //if (_matchAlgorithm.MatchCount == 1)
-                //{
-                //    if (_matchAlgorithm.MatchTemplateSingle(srcImage) == false)
-                //        return false;
-
-                //    _outPoints = new List<OpenCvSharp.Point>();
-                //    _outPoints.Add(_matchAlgorithm.OutPoint);
-                //}
-                //else
-                //{
-                //    int matchCount = _matchAlgorithm.MatchTemplateMultiple(srcImage, out _outPoints);
-                //    if (matchCount <= 0)
-                //        return false;
-                //}
-                return true;
+            return true;
         }
-
-        //#MATCH PROP#6 템플릿 매칭 검사 결과 위치를 Rectangle 리스트로 반환
-
-        //public int GetMatchRect(out List<Rect> rects)
-        //{
-        //    rects = new List<Rect>();
-
-        //    int halfwidth = _teachingImage.Width;
-        //    int halfheight = _teachingImage.Height;
-
-        //    foreach (var point in _outPoints)
-        //    {
-        //        Console.WriteLine($"매칭된 위치: {_outPoints}");
-        //        rects.Add(new Rect(point.X - halfwidth, point.Y - halfheight, _teachingImage.Width, _teachingImage.Height));
-        //    }
-
-        //    return rects.Count;
-
-        //}
     }
 }

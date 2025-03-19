@@ -211,9 +211,6 @@ namespace JidamVision.Core
                     break;
             }
             resultImage = dst;
-
-
-
         }
 
         static void ApplyBitwiseOperation(Bitwise operation, Mat src1, out Mat resultImage)  // 이미지 Bitwise 연산 코드

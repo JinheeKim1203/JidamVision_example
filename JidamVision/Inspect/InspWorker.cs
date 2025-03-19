@@ -119,7 +119,7 @@ namespace JidamVision.Inspect
                 }
             }
 
-            if (totalArea.Count > 0)
+            if (totalArea.Count >= 0)
             { 
                 //찾은 위치를 이미지상에서 표시
                 var cameraForm = MainForm.GetDockForm<CameraForm>();
