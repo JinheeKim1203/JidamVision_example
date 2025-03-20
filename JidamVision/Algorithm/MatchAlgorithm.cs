@@ -28,7 +28,7 @@ namespace JidamVision.Algorithm
         //템플릿 매칭으로 찾고 싶은 갯수
         public int MatchCount { get; set; } = 1;
 
-        private int _scanStep = 8; // 검색 간격 (SCAN 값)
+        private int _scanStep = 4; // 검색 간격 (SCAN 값)
 
         public MatchAlgorithm()
         {

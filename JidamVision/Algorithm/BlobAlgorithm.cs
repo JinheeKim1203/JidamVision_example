@@ -158,7 +158,8 @@ namespace JidamVision.Algorithm
                 //Cv2.DrawContours(filteredImage, new Point[][] { contour }, -1, Scalar.White, -1);
 
                 // RotatedRect 정보 계산
-                RotatedRect rotatedRect = Cv2.MinAreaRect(contour);
+                //RotatedRect rotatedRect = Cv2.MinAreaRect(contour);
+
                 Rect boundingRect = Cv2.BoundingRect(contour);
 
                 // [면적 필터 조건] 적용
@@ -178,7 +179,7 @@ namespace JidamVision.Algorithm
            
 
                 // RotatedRect 정보 출력
-                Console.WriteLine($"RotatedRect - Center: {rotatedRect.Center}, Size: {rotatedRect.Size}, Angle: {rotatedRect.Angle}");
+                //Console.WriteLine($"RotatedRect - Center: {rotatedRect.Center}, Size: {rotatedRect.Size}, Angle: {rotatedRect.Angle}");
 
                 // BoundingRect 정보 출력
                 //Console.WriteLine($"BoundingRect - X: {boundingRect.X}, Y: {boundingRect.Y}, Width: {boundingRect.Width}, Height: {boundingRect.Height}");
