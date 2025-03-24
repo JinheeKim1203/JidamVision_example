@@ -1,5 +1,6 @@
 ﻿using JidamVision.Core;
 using JidamVision.Setting;
+using JidamVision.Util;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -121,6 +122,7 @@ namespace JidamVision
 
         private void setupToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            SLogger.Write($"환경설정창 열기");
             SetupForm setupForm = new SetupForm();
             setupForm.ShowDialog();
         }
@@ -152,13 +154,25 @@ namespace JidamVision
         private void modelSaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //모델 파일 저장
-            Global.Inst.InspStage.SaveModel();
+            Global.Inst.InspStage.SaveModel("");
         }
 
         private void modelSaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            NewModel newModel = new NewModel(true);
-            newModel.ShowDialog();
+            //다른이름으로 모델 파일 저장
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.InitialDirectory = SettingXml.Inst.ModelDir;
+                saveFileDialog.Title = "모델 파일 선택";
+                saveFileDialog.Filter = "Model Files|*.xml;";
+                saveFileDialog.DefaultExt = "xml";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filePath = saveFileDialog.FileName;
+                    Global.Inst.InspStage.SaveModel(filePath);
+                }
+            }
         }
     }
 }

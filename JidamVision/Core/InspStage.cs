@@ -2,6 +2,7 @@
 using JidamVision.Inspect;
 using JidamVision.Setting;
 using JidamVision.Teach;
+using JidamVision.Util;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -75,6 +76,8 @@ namespace JidamVision.Core
 
         public bool Initialize()
         {
+            SLogger.Write("InspStage 초기화!");
+
             _imageSpace = new ImageSpace();
             _previewImage = new PreviewImage();
             _inspWorker = new InspWorker();
@@ -216,6 +219,8 @@ namespace JidamVision.Core
                     _imageSpace.GetInspectionBufferHandle(i),
                     i);
             }
+
+            SLogger.Write("버퍼 초기화 성공!");
         }
 
         public void Grab(int bufferIndex)
@@ -248,6 +253,7 @@ namespace JidamVision.Core
 
             if (LiveMode)
             {
+                SLogger.Write("Grab");
                 await Task.Delay(100);  // 비동기 대기
                 _grabManager.Grab(bufferIndex, true);  // 다음 촬영 시작
             }
@@ -301,7 +307,7 @@ namespace JidamVision.Core
 
         private void InitInspWindow()
         {
-            _inspWindow = new InspWindow();
+            SLogger.Write("검사 속성창 초기화!");
 
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             if (propForm != null)
@@ -361,14 +367,21 @@ namespace JidamVision.Core
         //#MODEL SAVE#3 Mainform에서 호출되는 모델 열기와 저장 함수
         public void LoadModel(string filePath)
         {
+            SLogger.Write($"모델 로딩:{filePath}");
+
             _model = _model.Load(filePath);
             UpdateDiagramEntity ();
         }
 
-        public void SaveModel()
+        public void SaveModel(string filePath)
         {
+            SLogger.Write($"모델 저장:{filePath}");
+
             //입력 경로가 없으면 현재 모델 저장
-            Global.Inst.InspStage.CurModel.Save();
+            if (string.IsNullOrEmpty(filePath))
+                Global.Inst.InspStage.CurModel.Save();
+            else
+                Global.Inst.InspStage.CurModel.SaveAs(filePath);
         }
     }
 }

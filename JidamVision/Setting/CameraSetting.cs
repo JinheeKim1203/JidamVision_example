@@ -1,4 +1,5 @@
 ﻿using JidamVision.Grab;
+using JidamVision.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,6 +39,8 @@ namespace JidamVision.Setting
             SettingXml.Inst.CamType = (CameraType)cbCameraType.SelectedIndex;
             //환경설정 저장
             SettingXml.Save();
+
+            SLogger.Write($"카메라 설정 저장");
         }
 
         //적용 버튼 선택시 저장하기
