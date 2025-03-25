@@ -26,7 +26,9 @@ namespace JidamVision
         {
             InitializeComponent();
 
-            imageViewer.ModifyROI += ImageViewer_ModifyROI;
+            this.FormClosed += CameraForm_FormClosed;
+
+            imageViewer.DiagramEntityEvent += ImageViewer_ModifyROI;
             rbtnColor.Checked = true;
         }
 
@@ -37,13 +39,23 @@ namespace JidamVision
                 case EntityActionType.Add:
                     Global.Inst.InspStage.AddInspWindow(e.WindowType, e.Rect);
                     break;
-
-                case EntityActionType.Modify:
+                case EntityActionType.Move:
+                    Global.Inst.InspStage.MoveInspWindow(e.InspWindow, e.OffsetMove);
+                    break;
+                case EntityActionType.Resize:
                     Global.Inst.InspStage.ModifyInspWindow(e.InspWindow, e.Rect);
                     break;
-
                 case EntityActionType.Delete:
                     Global.Inst.InspStage.DelInspWindow(e.InspWindow);
+                    break;
+                case EntityActionType.DeleteList:
+                    Global.Inst.InspStage.DelInspWindow(e.InspWindowList);
+                    break;
+                case EntityActionType.AddGroup:
+                    Global.Inst.InspStage.CreateGroupWindow(e.InspWindowList);
+                    break;
+                case EntityActionType.Break:
+                    Global.Inst.InspStage.BreakGroupWindow(e.InspWindow);
                     break;
             }
         }
@@ -104,10 +116,10 @@ namespace JidamVision
 
             btnGrab.Location = new System.Drawing.Point(xPos, btnGrab.Location.Y);
             btnLive.Location = new System.Drawing.Point(xPos, btnLive.Location.Y);
-            btnSetRoi.Location = new System.Drawing.Point(xPos, btnSetRoi.Location.Y);
             btnInspect.Location = new System.Drawing.Point(xPos, btnInspect.Location.Y);
             btnSave.Location = new System.Drawing.Point(xPos, btnSave.Location.Y);
             grpChannel.Location = new System.Drawing.Point(xPos, grpChannel.Location.Y + 10);
+            
             imageViewer.Width = this.Width - btnGrab.Width - margin * 2;
             imageViewer.Height = this.Height - margin * 2;
 
@@ -132,6 +144,7 @@ namespace JidamVision
 
         }
 
+        #region Select Channel
         private void rbtnColor_CheckedChanged(object sender, EventArgs e)
         {
             UpdateDisplay();
@@ -157,16 +170,7 @@ namespace JidamVision
             UpdateDisplay();
         }
 
-        /*
-         #SETROI# - <<<ROI 설정 개발>>> 
-        이미지 상에서 ROI(Region of Interest)를 설정하는 기능
-         */
-        private void btnSetRoi_Click(object sender, EventArgs e)
-        {
-            //#SETROI#2 ROI 모드 토글 설정
-            imageViewer.RoiMode = !imageViewer.RoiMode;
-            imageViewer.Invalidate();
-        }
+        #endregion
 
         /*
          #SAVE ROI# - <<<ROI 영역 이미지 파일 저장>>> 
@@ -218,23 +222,50 @@ namespace JidamVision
         public void UpdateDiagramEntity()
         {
             Model model = Global.Inst.InspStage.CurModel;
-            List<InspWindow> windowList = model.InspWindowList;
-            if(windowList.Count <= 0) 
-                return;
-
             List<DiagramEntity> diagramEntityList = new List<DiagramEntity>();
 
             foreach (InspWindow window in model.InspWindowList)
             {
-                DiagramEntity diagramEntity = new DiagramEntity();
-                Rect rect = window.WindowArea;
-                diagramEntity.LinkedWindow = window;
-                diagramEntity.EntityROI = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
-                diagramEntity.EntityColor = imageViewer.GetWindowColor(window.InspWindowType);
-                diagramEntityList.Add(diagramEntity);
+                if (window is null)
+                    continue;
+
+                if (window is GroupWindow group)
+                {
+                    foreach (InspWindow member in group.Members)
+                    {
+                        DiagramEntity entity = new DiagramEntity()
+                        {
+                            LinkedWindow = member,
+                            EntityROI = new Rectangle(
+                                member.WindowArea.X, member.WindowArea.Y,
+                                member.WindowArea.Width, member.WindowArea.Height),
+                            EntityColor = imageViewer.GetWindowColor(member.InspWindowType)
+                        };
+                        diagramEntityList.Add(entity);
+                    }
+                }
+                else if (window.Parent == null)
+                {
+                    DiagramEntity entity = new DiagramEntity()
+                    {
+                        LinkedWindow = window,
+                        EntityROI = new Rectangle(
+                            window.WindowArea.X, window.WindowArea.Y,
+                                window.WindowArea.Width, window.WindowArea.Height),
+                        EntityColor = imageViewer.GetWindowColor(window.InspWindowType)
+                    };
+                    diagramEntityList.Add(entity);
+                }
             }
 
             imageViewer.SetDiagramEntityList(diagramEntityList);
+        }
+
+        private void CameraForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            imageViewer.DiagramEntityEvent -= ImageViewer_ModifyROI;
+
+            this.FormClosed -= CameraForm_FormClosed;
         }
     }
 }

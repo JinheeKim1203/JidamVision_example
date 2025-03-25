@@ -22,42 +22,40 @@ namespace JidamVision
     //개별로 선택된 ROI를 수정할 수 있음
     */
 
+    //Virtual좌표계 : 이미지 크기 기준 좌표, 예> 640X480 이미지 상의 좌표(InspWindow상의 좌표)
+    //Screen좌표계 : UserControl 크기 기준으로 좌표(마우스 좌표, 커서 위치 등)
+
     //#MULTI ROI#2 ROI를 추가,수정,삭제하는 액션을 타입으로 설정
     public enum EntityActionType
     {
         None = 0,
         Add = 1,
-        Modify,
-        Delete
+        Move,
+        Resize,
+        Delete,
+        DeleteList,
+        AddGroup,
+        Break
     }
 
     public partial class ImageViewCCtrl : UserControl
     {
         //#MULTI ROI#3 ROI를 추가,수정,삭제 등으로 변경 시, 이벤트 발생 - 변경된 값이 전달될 수 있도록
-        public event EventHandler<DiagramEntityEventArgs> ModifyROI;
+        public event EventHandler<DiagramEntityEventArgs> DiagramEntityEvent;
 
         private Point _roiStart = Point.Empty;
         private Rectangle _roiRect = Rectangle.Empty;
         private bool _isSelectingRoi = false;
         private bool _isResizingRoi = false;
         private bool _isMovingRoi = false;
+        private bool _isInitialized = false;
         private Point _resizeStart = Point.Empty;
         private Point _moveStart = Point.Empty;
         private int _resizeDirection = -1;
         private const int _ResizeHandleSize = 10;
 
-
-        // 마우스 클릭 위치 저장
-        private Point RightClick = Point.Empty;
-
-        // 현재 이미지 이동을 위한 오프셋 값
-        private Point Offset = Point.Empty;
-
-        // 마지막 오프셋 값을 저장하여 마우스 이동을 연속적으로 처리
-        private Point LastOffset = new Point(0, 0);
-
         // 현재 로드된 이미지
-        private Bitmap Bitmap = null;
+        private Bitmap _bitmapImage = null;
 
         // 더블 버퍼링을 위한 캔버스
         // 더블버퍼링 : 화면 깜빡임을 방지하고 부드러운 펜더링위해 사용
@@ -65,34 +63,21 @@ namespace JidamVision
         // 사용자가 빠르게 작동할 경우 Flickering 발생
         private Bitmap Canvas = null;
 
-        // 캔버스 크기
-        private Rectangle CanvasSize = new Rectangle(0, 0, 0, 0);
-
         // 화면에 표시될 이미지의 크기 및 위치
         // 부동 소수점(float) 좌표를 사용하는 사각형 구조체
         private RectangleF ImageRect = new RectangleF(0, 0, 0, 0);
 
         // 현재 줌 배율
-        private float ZoomFactor = 1.0f;
+        private float _curZoom = 1.0f;
+        // 줌 배율 변경 시, 확대/축소 단위
+        private float _zoomFactor = 1.1f;
 
         // 최소 및 최대 줌 제한 값
-        private const float MinZoom = 1f;
-        private const float MaxZoom = 200.0f;
-
-        //줌아웃위하 초기값
-        private float InitialCenterX;  // 초기 이미지 중심 X
-        private float InitialCenterY;  // 초기 이미지 중심 Y
-        private float InitialStartX;    //resize 위한 초기 X값 저장
-        private float InitialStartY;    //resize 위한 초기 Y값 저장
-        private float InitialWidth;    // 초기 이미지 너비
-        private float InitialHeight;   // 초기 이미지 높이
-
+        private float MinZoom = 1.0f;
+        private const float MaxZoom = 100.0f;
 
         //#MATCH PROP#11 템플릿 매칭 결과 출력을 위해 Rectangle 리스트 변수 설정
         private List<Rectangle> _rectangles = new List<Rectangle>();
-
-        //#MULTI ROI#4 ROI 추가 기능을 모델트리에서 하므로, **사용하지 않음**
-        public bool RoiMode { get; set; } = false;
 
         //#MULTI ROI#5 수정에 필요한 타입 추가
 
@@ -101,13 +86,30 @@ namespace JidamVision
 
         //여러개 ROI를 관리하기 위한 리스트
         private List<DiagramEntity> _diagramEntityList = new List<DiagramEntity>();
+
+        //현재 선택된 ROI 리스트
+        private List<DiagramEntity> _multiSelectedEntities = new List<DiagramEntity>();
         private DiagramEntity _selEntity;
         private Color _selColor = Color.White;
+
+        private Rectangle _selectionBox = Rectangle.Empty;
+        private bool _isBoxSelecting = false;
+        private bool _isCtrlPressed = false;
+        private Rectangle _screenSelectedRect = Rectangle.Empty;
+
+        //팝업 메뉴
+        private ContextMenuStrip _contextMenu;
 
         public ImageViewCCtrl()
         {
             InitializeComponent();
             InitializeCanvas();
+
+            //#GROUP ROI#3 화면상에서, 팝업 메뉴 띄우기
+            _contextMenu = new ContextMenuStrip();
+            _contextMenu.Items.Add("Create Group", null, OnCreateGroupClicked);
+            _contextMenu.Items.Add("Break Group", null, OnBreakGroupClicked);
+            _contextMenu.Items.Add("Delete", null, OnDeleteClicked);
 
             // 마우스 휠 이벤트를 등록하여 줌 기능 추가
             // MouseWheel+= : 같은 이벤트에 여러 개의 핸들러 등록가능. 이전 핸들러 삭제않고 추가됨
@@ -119,7 +121,7 @@ namespace JidamVision
         private void InitializeCanvas()
         {
             // 캔버스를 UserControl 크기만큼 생성
-            ResizeCanas();
+            ResizeCanvas();
 
             // 화면 깜빡임을 방지하기 위한 더블 버퍼링 설정
             DoubleBuffered = true;
@@ -162,72 +164,50 @@ namespace JidamVision
             _selColor = GetWindowColor(inspWindowType);
         }
 
-        private void ResizeCanas()
+        private void ResizeCanvas()
         {
-            if (Width <= 0 || Height <= 0)
+            if (Width <= 0 || Height <= 0 || _bitmapImage == null)
                 return;
 
             // 캔버스를 UserControl 크기만큼 생성
             Canvas = new Bitmap(Width, Height);
-            CanvasSize.Width = Width;
-            CanvasSize.Height = Height;
+            if (Canvas == null)
+                return;
 
-            if (Bitmap == null) return;
+            // 이미지 원본 크기 기준으로 확대/축소 (ZoomFactor 유지)
+            float virtualWidth = _bitmapImage.Width * _curZoom;
+            float virtualHeight = _bitmapImage.Height * _curZoom;
 
-            // UserControl 크기에 맞춰 이미지 비율 유지하여 크기 조정
-            float WidthRatio = (float)Width / Bitmap.Width;  //UserControl1 Width/Bitmap.Width
-            float HeightRatio = (float)Height / Bitmap.Height;
-            float Scale = Math.Min(WidthRatio, HeightRatio); // 더 작은 값을 선택하여 비율 유지
+            float offsetX = virtualWidth < Width ? (Width - virtualWidth) / 2f : 0f;
+            float offsetY = virtualHeight < Height ? (Height - virtualHeight) / 2f : 0f;
 
-            float NewWidth = Bitmap.Width * Scale;
-            float NewHeight = Bitmap.Height * Scale;
-
-            if (InitialStartX == 0 || InitialStartY == 0)
-            {
-                InitialStartX = ImageRect.X;
-                InitialStartY = ImageRect.Y;
-            }
-
-            // 이미지가 UserControl 중앙에 배치되도록 정렬
-            ImageRect = new RectangleF(
-                (Width - NewWidth) / 2, // UserControl 너비에서 이미지 너비를 뺀 후, 절반을 왼쪽 여백으로 설정하여 중앙 정렬
-                (Height - NewHeight) / 2,
-                NewWidth,
-                NewHeight
-            );
-
-            UpdateROI();
-
-            //줌아웃위한 초기값 저장
-            InitialCenterX = ImageRect.X + (ImageRect.Width / 2);
-            InitialCenterY = ImageRect.Y + (ImageRect.Height / 2);
-
-            InitialStartX = ImageRect.X;
-            InitialStartY = ImageRect.Y;
-            InitialWidth = NewWidth;
-            InitialHeight = NewHeight;
+            ImageRect = new RectangleF(offsetX, offsetY, virtualWidth, virtualHeight);
         }
 
         public void LoadBitmap(Bitmap bitmap)
         {
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
-            if (Bitmap != null)
+            if (_bitmapImage != null)
             {
-                Bitmap.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
-                Bitmap = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
+                _bitmapImage.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
+                _bitmapImage = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
             }
 
             // 새로운 이미지 로드
-            Bitmap = bitmap;
+            _bitmapImage = bitmap;
 
+            ////bitmap==null 예외처리도 초기화되지않은 변수들 초기화
+            if (_isInitialized == false)
+            {
+                _isInitialized = true;
+                ResizeCanvas();
+            }
 
-            // UserControl 크기에 맞춰 이미지 비율 유지하여 크기 조정
-            float WidthRatio = (float)Width / Bitmap.Width;  //UserControl1 Width/Bitmap.Width
-            float HeightRatio = (float)Height / Bitmap.Height;
-            float Scale = Math.Min(WidthRatio, HeightRatio); // 더 작은 값을 선택하여 비율 유지
+            //원본 이미지 크기를 1로 볼때 화면 크기에 맞는 줌 비율을 구하여 반영
+            RecalcZoomRatio();
 
-            float NewWidth = Bitmap.Width * Scale;
-            float NewHeight = Bitmap.Height * Scale;
+            float NewWidth = _bitmapImage.Width * _curZoom;
+            float NewHeight = _bitmapImage.Height * _curZoom;
 
             // 이미지가 UserControl 중앙에 배치되도록 정렬
             ImageRect = new RectangleF(
@@ -237,64 +217,47 @@ namespace JidamVision
                 NewHeight
             );
 
-            //줌아웃위한 초기값 저장
-            InitialCenterX = ImageRect.X + (ImageRect.Width / 2);
-            InitialCenterY = ImageRect.Y + (ImageRect.Height / 2);
-            InitialWidth = NewWidth;
-            InitialHeight = NewHeight;
-
-            // 줌 초기화
-            ZoomFactor = 1.0f;
-
-            // 이미지 이동을 위한 오프셋 값 초기화
-            Offset = new Point((int)ImageRect.X, (int)ImageRect.Y);  //이미지 왼쪽상단(Top-Left)의 시작 좌표
-            LastOffset = Offset;
-
             // 변경된 화면을 다시 그리도록 요청
             Invalidate();
-
         }
 
         public void LoadImage(string path)
         {
-            // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
-            if (Bitmap != null)
+            using (Bitmap image = (Bitmap)Image.FromFile(path))
             {
-                Bitmap.Dispose(); // Bitmap 객체가 사용하던 메모리 리소스를 해제
-                Bitmap = null;  //객체를 해제하여 가비지 컬렉션(GC)이 수집할 수 있도록 설정
+                LoadBitmap(image);
             }
+        }
 
-            // 새로운 이미지 로드
-            Bitmap = (Bitmap)Image.FromFile(path);
+        //#GROUP ROI#7 현재 이미지를 기준으로 줌 비율 재계산
+        private void RecalcZoomRatio()
+        {
+            if (_bitmapImage == null || Width <= 0 || Height <= 0)
+                return;
 
+            Size imageSize = new Size(_bitmapImage.Width, _bitmapImage.Height);
 
-            // UserControl 크기에 맞춰 이미지 비율 유지하여 크기 조정
-            float WidthRatio = (float)Width / Bitmap.Width;  //UserControl1 Width/Bitmap.Width
-            float HeightRatio = (float)Height / Bitmap.Height;
-            float Scale = Math.Min(WidthRatio, HeightRatio); // 더 작은 값을 선택하여 비율 유지
+            float aspectRatio = (float)imageSize.Height / (float)imageSize.Width;
+            float clientAspect = (float)Height / (float)Width;
 
-            float NewWidth = Bitmap.Width * Scale;
-            float NewHeight = Bitmap.Height * Scale;
+            //UserControl과 이미지의 비율의 관계를 통해, 이미지가 UserControl안에 들어가도록 Zoom비율 설정
+            float ratio;
+            if (aspectRatio <= clientAspect)
+                ratio = (float)Width / (float)imageSize.Width;
+            else
+                ratio = (float)Height / (float)imageSize.Height;
 
-            // 이미지가 UserControl 중앙에 배치되도록 정렬
-            ImageRect = new RectangleF(
-                (Width - NewWidth) / 2, // UserControl 너비에서 이미지 너비를 뺀 후, 절반을 왼쪽 여백으로 설정하여 중앙 정렬
-                (Height - NewHeight) / 2,
-                NewWidth,
-                NewHeight
-            );
+            //최소 줌 비율은 이미지가 UserControl에 꽉차게 들어가는 것으로 설정
+            float minZoom = ratio;
 
+            // MinZoom 및 줌 적용
+            MinZoom = minZoom;
 
-            // 줌 초기화
-            ZoomFactor = 1.0f;
+            _curZoom = Math.Max(MinZoom, Math.Min(MaxZoom, ratio));
 
-            // 이미지 이동을 위한 오프셋 값 초기화
-            Offset = new System.Drawing.Point((int)ImageRect.X, (int)ImageRect.Y);  //이미지 왼쪽상단(Top-Left)의 시작 좌표
-            LastOffset = Offset;
-
-            // 변경된 화면을 다시 그리도록 요청
             Invalidate();
         }
+
 
         //public Bitmap GetRoiImage()
         //{
@@ -338,7 +301,7 @@ namespace JidamVision
         {
             base.OnPaint(e);
 
-            if (Bitmap != null)
+            if (_bitmapImage != null && Canvas != null)
             {
                 // 캔버스를 초기화하고 이미지 그리기
                 using (Graphics g = Graphics.FromImage(Canvas))  // 메모리누수방지
@@ -347,7 +310,7 @@ namespace JidamVision
 
                     //이미지 확대or축소때 화질 최적화 방식(Interpolation Mode) 설정                    
                     g.InterpolationMode = InterpolationMode.NearestNeighbor;
-                    g.DrawImage(Bitmap, ImageRect);
+                    g.DrawImage(_bitmapImage, ImageRect);
 
                     /* Interpolation Mode********************************************
                      * NearestNeighbor	빠르지만 품질이 낮음 (픽셀이 깨질 수 있음)
@@ -357,8 +320,6 @@ namespace JidamVision
                      ****************************************************************/
 
                     //#MATCH PROP#12 템플릿 매칭 위치 그리기
-                    float scaleX = ImageRect.Width / Bitmap.Width;
-                    float scaleY = ImageRect.Height / Bitmap.Height;
 
                     // 이미지 좌표 → 화면 좌표 변환 후 사각형 그리기
                     if (_rectangles != null)
@@ -367,33 +328,47 @@ namespace JidamVision
                         {
                             foreach (var rect in _rectangles)
                             {
-                                // 이미지 좌표를 화면 좌표로 변환
-                                int screenX = (int)(rect.X * scaleX + ImageRect.X);
-                                int screenY = (int)(rect.Y * scaleY + ImageRect.Y);
-                                int screenWidth = (int)(rect.Width * scaleX);
-                                int screenHeight = (int)(rect.Height * scaleY);
-
-                                g.DrawRectangle(pen, screenX, screenY, screenWidth, screenHeight);
+                                Rectangle screenRect = VirtualToScreen(rect);
+                                g.DrawRectangle(pen, screenRect);
                             }
                         }
                     }
+
                     //#MULTI ROI#8 여러개 ROI를 그려주는 코드
+                    //#GROUP ROI#8 멀티ROI 처리
+                    _screenSelectedRect = new Rectangle(0, 0, 0, 0);
                     foreach (DiagramEntity entity in _diagramEntityList)
                     {
-                        Rectangle rect = entity.EntityROI;
+                        Rectangle screenRect = VirtualToScreen(entity.EntityROI);
                         using (Pen pen = new Pen(entity.EntityColor, 2))
                         {
-                            g.DrawRectangle(pen, rect);
+                            if (_multiSelectedEntities.Contains(entity))
+                            {
+                                pen.DashStyle = DashStyle.Dash;
+                                pen.Width = 2;
+
+                                if (_screenSelectedRect.IsEmpty)
+                                {
+                                    _screenSelectedRect = screenRect;
+                                }
+                                else
+                                {
+                                    //선택된 roi가 여러개 일때, 전체 roi 영역 계산
+                                    //선택된 roi 영역 합치기
+                                    _screenSelectedRect = Rectangle.Union(_screenSelectedRect, screenRect);
+                                }
+                            }
+
+                            g.DrawRectangle(pen, screenRect);
                         }
 
-
                         //선택된 ROI가 있다면, 리사이즈 핸들 그리기
-                        if (entity == _selEntity)
+                        if (_multiSelectedEntities.Count <= 1 && entity == _selEntity)
                         {
                             // 리사이즈 핸들 그리기 (8개 포인트: 4 모서리 + 4 변 중간)
                             using (Brush brush = new SolidBrush(Color.LightBlue))
                             {
-                                Point[] resizeHandles = GetResizeHandles(rect);
+                                Point[] resizeHandles = GetResizeHandles(screenRect);
                                 foreach (Point handle in resizeHandles)
                                 {
                                     g.FillRectangle(brush, handle.X - _ResizeHandleSize / 2, handle.Y - _ResizeHandleSize / 2, _ResizeHandleSize, _ResizeHandleSize);
@@ -402,13 +377,43 @@ namespace JidamVision
                         }
                     }
 
+                    //#GROUP ROI#9 선택된 개별 roi가 없고, 여러개가 선택되었다면
+                    if (_multiSelectedEntities.Count > 1 && !_screenSelectedRect.IsEmpty)
+                    {
+                        using (Pen pen = new Pen(Color.White, 2))
+                        {
+                            g.DrawRectangle(pen, _screenSelectedRect);
+                        }
+
+                        // 리사이즈 핸들 그리기 (8개 포인트: 4 모서리 + 4 변 중간)
+                        using (Brush brush = new SolidBrush(Color.LightBlue))
+                        {
+                            Point[] resizeHandles = GetResizeHandles(_screenSelectedRect);
+                            foreach (Point handle in resizeHandles)
+                            {
+                                g.FillRectangle(brush, handle.X - _ResizeHandleSize / 2, handle.Y - _ResizeHandleSize / 2, _ResizeHandleSize, _ResizeHandleSize);
+                            }
+                        }
+                    }
+
                     //#MULTI ROI#9 신규 ROI 추가할때, 해당 ROI 그리기
                     if (_isSelectingRoi && !_roiRect.IsEmpty)
                     {
-                        Rectangle rect = _roiRect;
+                        Rectangle rect = VirtualToScreen(_roiRect);
                         using (Pen pen = new Pen(_selColor, 2))
                         {
                             g.DrawRectangle(pen, rect);
+                        }
+                    }
+
+                    //#GROUP ROI#10 선택 영역 박스 그리기
+                    if (_isBoxSelecting && !_selectionBox.IsEmpty)
+                    {
+                        using (Pen pen = new Pen(Color.LightSkyBlue, 3))
+                        {
+                            pen.DashStyle = DashStyle.Dash;
+                            pen.Width = 2;
+                            g.DrawRectangle(pen, _selectionBox);
                         }
                     }
 
@@ -432,11 +437,24 @@ namespace JidamVision
                 }
                 else
                 {
-                    if (_selEntity != null)
+                    if (_multiSelectedEntities.Count > 1)
                     {
-                        Rectangle rect = _selEntity.EntityROI;
+                        if (_screenSelectedRect.Contains(e.Location))
+                        {
+                            _selEntity = _multiSelectedEntities[0];
+                            _isMovingRoi = true;
+                            _moveStart = e.Location;
+                            _roiRect = _multiSelectedEntities[0].EntityROI;
+                            Invalidate();
+                            return;
+                        }
+                    }
+
+                    if (_selEntity != null && _selEntity.GetParentGroup() == null)
+                    {
+                        Rectangle screenRect = VirtualToScreen(_selEntity.EntityROI);
                         //마우스 클릭 위치가 ROI 크기 변경을 하기 위한 위치(모서리,엣지)인지 여부 판단
-                        _resizeDirection = GetResizeHandleIndex(rect, e.Location);
+                        _resizeDirection = GetResizeHandleIndex(screenRect, e.Location);
                         if (_resizeDirection != -1)
                         {
                             _isResizingRoi = true;
@@ -449,15 +467,40 @@ namespace JidamVision
                     _selEntity = null;
                     foreach (DiagramEntity entity in _diagramEntityList)
                     {
-                        Rectangle rect = entity.EntityROI;
-                        if (rect.Contains(e.Location))
+                        Rectangle screenRect = VirtualToScreen(entity.EntityROI);
+                        if (screenRect.Contains(e.Location))
                         {
+                            //#GROUP ROI#11 컨트롤키를 이용해, 개별 ROI 추가/제거
+                            if (_isCtrlPressed)
+                            {
+                                if (_multiSelectedEntities.Contains(entity))
+                                {
+                                    _multiSelectedEntities.Remove(entity);
+                                }
+                                else
+                                {
+                                    AddSelectedROI(entity);
+                                }
+                            }
+                            else
+                            {
+                                _multiSelectedEntities.Clear();
+                                AddSelectedROI(entity);
+                            }
+
                             _selEntity = entity;
                             _isMovingRoi = true;
                             _moveStart = e.Location;
                             _roiRect = entity.EntityROI;
                             break;
                         }
+                    }
+
+                    if (_selEntity == null && !_isCtrlPressed)
+                    {
+                        _isBoxSelecting = true;
+                        _roiStart = e.Location;
+                        _selectionBox = new Rectangle();
                     }
 
                     Invalidate();
@@ -469,8 +512,6 @@ namespace JidamVision
             {
                 //#MULTI ROI#11 같은 타입의 ROI추가가 더이상 없다면 초기화하여, ROI가 추가되지 않도록 함
                 _newRoiType = InspWindowType.None;
-
-                RightClick = e.Location;
 
                 // UserControl이 포커스를 받아야 마우스 휠이 정상적으로 동작함
                 Focus();
@@ -489,9 +530,10 @@ namespace JidamVision
                     int y = Math.Min(_roiStart.Y, e.Y);
                     int width = Math.Abs(e.X - _roiStart.X);
                     int height = Math.Abs(e.Y - _roiStart.Y);
-                    _roiRect = new Rectangle(x, y, width, height);
+                    _roiRect = ScreenToVirtual(new Rectangle(x, y, width, height));
                     Invalidate();
                 }
+
                 //기존 ROI 크기 변경
                 else if (_isResizingRoi)
                 {
@@ -506,39 +548,60 @@ namespace JidamVision
                 {
                     int dx = e.X - _moveStart.X;
                     int dy = e.Y - _moveStart.Y;
-                    _roiRect.X += dx;
-                    _roiRect.Y += dy;
-                    if (_selEntity != null)
+
+                    int dxVirtual = (int)((float)dx / _curZoom + 0.5f);
+                    int dyVirtual = (int)((float)dy / _curZoom + 0.5f);
+
+                    //#GROUP ROI#12 여러개 선택된 roi 이동
+                    if (_multiSelectedEntities.Count > 1)
+                    {
+                        foreach (var entity in _multiSelectedEntities)
+                        {
+                            if (entity is null || entity.IsHold)
+                                continue;
+
+                            Rectangle rect = entity.EntityROI;
+                            rect.X += dxVirtual;
+                            rect.Y += dyVirtual;
+                            entity.EntityROI = rect;
+                        }
+                    }
+                    else if (_selEntity != null)
+                    {
+                        _roiRect.X += dxVirtual;
+                        _roiRect.Y += dyVirtual;
                         _selEntity.EntityROI = _roiRect;
+                    }
+
                     _moveStart = e.Location;
                     Invalidate();
                 }
-            }
-            // 마우스 오른쪽 버튼이 눌린 상태에서만 이동 처리
-            else if (e.Button == MouseButtons.Right)
-            {
-                // 현재 마우스 위치와 이전 클릭 위치를 비교하여 이동 거리 계산
-                Offset.X = e.Location.X - RightClick.X + LastOffset.X;
-                Offset.Y = e.Location.Y - RightClick.Y + LastOffset.Y;
 
-                // 이미지 위치 업데이트
-                ImageRect.X = Offset.X;
-                ImageRect.Y = Offset.Y;
+                //ROI 선택 박스 그리기
+                else if (_isBoxSelecting)
+                {
+                    int x = Math.Min(_roiStart.X, e.X);
+                    int y = Math.Min(_roiStart.Y, e.Y);
+                    int w = Math.Abs(e.X - _roiStart.X);
+                    int h = Math.Abs(e.Y - _roiStart.Y);
+                    _selectionBox = new Rectangle(x, y, w, h);
+                    Invalidate();
 
-                // 변경된 화면을 다시 그리도록 요청
-                Invalidate();
+                }
             }
             //마우스 클릭없이, 위치만 이동시에, 커서의 위치가 크기변경또는 이동 위치일때, 커서 변경
             else
             {
                 if (_selEntity != null)
                 {
-                    int index = GetResizeHandleIndex(_selEntity.EntityROI, e.Location);
+                    Rectangle screenRoi = VirtualToScreen(_roiRect);
+                    Rectangle screenRect = VirtualToScreen(_selEntity.EntityROI);
+                    int index = GetResizeHandleIndex(screenRect, e.Location);
                     if (index != -1)
                     {
                         Cursor = GetCursorForHandle(index);
                     }
-                    else if (_roiRect.Contains(e.Location))
+                    else if (screenRoi.Contains(e.Location))
                     {
                         Cursor = Cursors.SizeAll; // ROI 내부 이동
                     }
@@ -548,7 +611,6 @@ namespace JidamVision
                     }
                 }
             }
-
         }
 
         private void ImageViewCCtrl_MouseUp(object sender, MouseEventArgs e)
@@ -566,43 +628,96 @@ namespace JidamVision
                     }
 
                     _isSelectingRoi = false;
+
+                    //모델에 InspWindow 추가하는 이벤트 발생
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Add, null, _newRoiType, _roiRect, new Point()));
                 }
                 else if (_isResizingRoi)
                 {
                     _selEntity.EntityROI = _roiRect;
                     _isResizingRoi = false;
+
+                    //모델에 InspWindow 크기 변경 이벤트 발생
+                    DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Resize, _selEntity.LinkedWindow, _newRoiType, _roiRect, new Point()));
                 }
                 else if (_isMovingRoi)
                 {
-                    _selEntity.EntityROI = _roiRect;
                     _isMovingRoi = false;
-                }
 
-                UpdateEntity();
+                    if (_selEntity != null)
+                    {
+                        InspWindow linkedWindow = _selEntity.LinkedWindow;
+
+                        Point offsetMove = new Point(0, 0);
+                        if (linkedWindow != null)
+                        {
+                            offsetMove.X = _selEntity.EntityROI.X - linkedWindow.WindowArea.X;
+                            offsetMove.Y = _selEntity.EntityROI.Y - linkedWindow.WindowArea.Y;
+                        }
+
+                        //모델에 InspWindow 이동 이벤트 발생
+                        if (offsetMove.X != 0 || offsetMove.Y != 0)
+                            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Move, linkedWindow, _newRoiType, _roiRect, offsetMove));
+                    }
+                }
+                // ROI 선택 완료
+                if (_isBoxSelecting)
+                {
+                    _isBoxSelecting = false;
+                    _multiSelectedEntities.Clear();
+
+                    Rectangle selectionVirtual = ScreenToVirtual(_selectionBox);
+
+                    foreach (DiagramEntity entity in _diagramEntityList)
+                    {
+                        if (selectionVirtual.IntersectsWith(entity.EntityROI))
+                        {
+                            _multiSelectedEntities.Add(entity);
+                        }
+                    }
+
+                    if (_multiSelectedEntities.Any())
+                        _selEntity = _multiSelectedEntities[0];
+
+                    _selectionBox = Rectangle.Empty;
+                    Invalidate();
+                    return;
+                }
             }
 
             // 마우스를 떼면 마지막 오프셋 값을 저장하여 이후 이동을 연속적으로 처리
             if (e.Button == MouseButtons.Right)
             {
-                LastOffset = Offset;
+                if (_selEntity != null)
+                {
+                    //팝업메뉴 표시
+                    _contextMenu.Show(this, e.Location);
+                }
             }
         }
 
-        //#MULTI ROI#14 ROI 추가,수정,삭제 시, 이벤트 발생
-        private void UpdateEntity()
+        private void AddSelectedROI(DiagramEntity entity)
         {
-            if (_selEntity is null)
+            if (entity is null)
                 return;
 
-            if (_selEntity.LinkedWindow is null)
+            GroupWindow group = entity.GetParentGroup();
+            if (group != null)
             {
-                ModifyROI?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Add, null, _newRoiType, _roiRect));
-                return;
+                var entityList = _diagramEntityList
+                    .Where(m => group.Members.Contains(m.LinkedWindow))
+                    .Except(_multiSelectedEntities)
+                    .ToList();
+                _multiSelectedEntities.AddRange(entityList);
             }
-            ModifyROI?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Modify, _selEntity.LinkedWindow, _newRoiType, _roiRect));
-
+            else
+            {
+                if (!_multiSelectedEntities.Contains(entity))
+                    _multiSelectedEntities.Add(entity);
+            }
         }
 
+        #region ROI Handle
         //마우스 위치가 ROI 크기 변경을 위한 여부를 확인하기 위해, 4개 모서리와 사각형 라인의 중간 위치 반환
         private Point[] GetResizeHandles(Rectangle rect)
         {
@@ -620,9 +735,9 @@ namespace JidamVision
         }
 
         //마우스 위치가 크기 변경 위치에 해당하는 지를, 위치 인덱스로 반환
-        private int GetResizeHandleIndex(Rectangle rect, Point mousePos)
+        private int GetResizeHandleIndex(Rectangle screenRect, Point mousePos)
         {
-            Point[] handles = GetResizeHandles(rect);
+            Point[] handles = GetResizeHandles(screenRect);
             for (int i = 0; i < handles.Length; i++)
             {
                 Rectangle handleRect = new Rectangle(handles[i].X - _ResizeHandleSize / 2, handles[i].Y - _ResizeHandleSize / 2, _ResizeHandleSize, _ResizeHandleSize);
@@ -643,202 +758,287 @@ namespace JidamVision
                 default: return Cursors.Default;
             }
         }
+        #endregion
 
         //ROI 크기 변경시, 마우스 위치를 입력받아, ROI 크기 변경
         private void ResizeROI(Point mousePos)
         {
+            Rectangle roi = VirtualToScreen(_roiRect);
             switch (_resizeDirection)
             {
-                case 0: _roiRect.X = mousePos.X; _roiRect.Y = mousePos.Y; _roiRect.Width -= (mousePos.X - _resizeStart.X); _roiRect.Height -= (mousePos.Y - _resizeStart.Y); break;
-                case 1: _roiRect.Width = mousePos.X - _roiRect.X; _roiRect.Y = mousePos.Y; _roiRect.Height -= (mousePos.Y - _resizeStart.Y); break;
-                case 2: _roiRect.X = mousePos.X; _roiRect.Width -= (mousePos.X - _resizeStart.X); _roiRect.Height = mousePos.Y - _roiRect.Y; break;
-                case 3: _roiRect.Width = mousePos.X - _roiRect.X; _roiRect.Height = mousePos.Y - _roiRect.Y; break;
-                case 4: _roiRect.Y = mousePos.Y; _roiRect.Height -= (mousePos.Y - _resizeStart.Y); break;
-                case 5: _roiRect.Height = mousePos.Y - _roiRect.Y; break;
-                case 6: _roiRect.X = mousePos.X; _roiRect.Width -= (mousePos.X - _resizeStart.X); break;
-                case 7: _roiRect.Width = mousePos.X - _roiRect.X; break;
+                case 0:
+                    roi.X = mousePos.X;
+                    roi.Y = mousePos.Y;
+                    roi.Width -= (mousePos.X - _resizeStart.X);
+                    roi.Height -= (mousePos.Y - _resizeStart.Y);
+                    break;
+                case 1:
+                    roi.Width = mousePos.X - roi.X;
+                    roi.Y = mousePos.Y;
+                    roi.Height -= (mousePos.Y - _resizeStart.Y);
+                    break;
+                case 2:
+                    roi.X = mousePos.X;
+                    roi.Width -= (mousePos.X - _resizeStart.X);
+                    roi.Height = mousePos.Y - roi.Y;
+                    break;
+                case 3:
+                    roi.Width = mousePos.X - roi.X;
+                    roi.Height = mousePos.Y - roi.Y;
+                    break;
+                case 4:
+                    roi.Y = mousePos.Y;
+                    roi.Height -= (mousePos.Y - _resizeStart.Y);
+                    break;
+                case 5:
+                    roi.Height = mousePos.Y - roi.Y;
+                    break;
+                case 6:
+                    roi.X = mousePos.X;
+                    roi.Width -= (mousePos.X - _resizeStart.X);
+                    break;
+                case 7:
+                    roi.Width = mousePos.X - roi.X;
+                    break;
             }
-        }
 
-        private bool IsMouseOnResizeHandle(Point mousePos)
-        {
-            return new Rectangle(_roiRect.Right - _ResizeHandleSize, _roiRect.Bottom - _ResizeHandleSize, _ResizeHandleSize, _ResizeHandleSize).Contains(mousePos);
+            _roiRect = ScreenToVirtual(roi);
         }
 
         private void ImageViewCCtrl_MouseWheel(object sender, MouseEventArgs e)
         {
-            // 마우스 휠 위(줌 인) 또는 아래(줌 아웃) 이벤트 처리
-            float ZoomChange = e.Delta > 0 ? 1.1f : 0.9f; //마우스휠 위로(+) 1.1배,아래로(-) 0.9배 축소
-            float NewZoomFactor = ZoomFactor * ZoomChange; //현재줌배율*새로운줌배율
+            if (e.Delta < 0)
+                ZoomMove(_curZoom / _zoomFactor, e.Location);
+            else
+                ZoomMove(_curZoom * _zoomFactor, e.Location);
 
-            // MaxZoom, MinZoom 값 범위내에서 줌
-            if (NewZoomFactor > MaxZoom)
+            // 새로운 이미지 위치 반영 (점진적으로 초기 상태로 회귀)
+            if (_bitmapImage != null)
             {
-                NewZoomFactor = MaxZoom;
+                ImageRect.Width = _bitmapImage.Width * _curZoom;
+                ImageRect.Height = _bitmapImage.Height * _curZoom;
             }
-            if (NewZoomFactor < MinZoom)
-            {
-                NewZoomFactor = MinZoom;
-            }
-
-
-            // 줌 아웃 시 점진적으로 초기 크기와 중심위치로 복귀
-            if (ZoomChange < 1.0f)
-            {
-
-                /******************************************************************************************************
-                 * Lerp(Linear Interpolation, 선형 보간)은 두 값 사이를 일정한 비율로 보간하여 중간 값을 계산하는 기법
-                 * 두 값 A와 B 사이의 중간 값을 단계적으로 계산하여 부드러운 변화 효과
-                 * Lerp(A, B, t) = A * (1 - t) + B * t
-                 * A: 시작 값 (현재 값), B: 목표 값 (최종 값), t: 보간 비율 (0.0f ~ 1.0f, 값이 클수록 더 빠르게 B에 가까워짐)
-                 *******************************************************************************************************/
-
-
-                float t = 0.5f; // 이미지 점진적으로 줄어들도록 보간
-
-                // 현재 크기를 점진적으로 초기 크기로 조정
-                float NewWidth = ImageRect.Width * (1 - t) + InitialWidth * t;
-                float NewHeight = ImageRect.Height * (1 - t) + InitialHeight * t;
-
-                // 현재 중심에서 점진적으로 초기 중심으로 이동
-                float CurrentCenterX = ImageRect.X + (ImageRect.Width / 2);
-                float CurrentCenterY = ImageRect.Y + (ImageRect.Height / 2);
-
-                float NewCenterX = CurrentCenterX * (1 - t) + InitialCenterX * t;
-                float NewCenterY = CurrentCenterY * (1 - t) + InitialCenterY * t;
-
-                // 새로운 이미지 위치 반영 (점진적으로 초기 상태로 회귀)
-                ImageRect = new RectangleF(
-                    NewCenterX - (NewWidth / 2),
-                    NewCenterY - (NewHeight / 2),
-                    NewWidth,
-                    NewHeight
-                );
-
-                ZoomFactor = ZoomFactor * (1 - t) + 1.0f * t;
-            }
-            else  // 줌 인 시 마우스 위치 기준 확대
-            {
-                // 마우스 위치를 기준으로 줌 좌표 변환
-                float MouseXRatio = (e.X - ImageRect.X) / ImageRect.Width;
-                float MouseYRatio = (e.Y - ImageRect.Y) / ImageRect.Height;
-
-                // 새로운 이미지 크기 계산
-                float NewWidth = ImageRect.Width * ZoomChange;
-                float NewHeight = ImageRect.Height * ZoomChange;
-
-                // 마우스 포인터 위치를 유지하면서 새로운 이미지 위치 설정
-                float NewX = e.X - (MouseXRatio * NewWidth);
-                float NewY = e.Y - (MouseYRatio * NewHeight);
-
-                // 마우스 포인터를 중심으로 새로운 이미지 위치 반영
-                ImageRect = new RectangleF(NewX, NewY, NewWidth, NewHeight);
-
-
-                // 배율 업데이트
-                ZoomFactor = NewZoomFactor;
-            }
-
-            // 줌 후 이동할 때 중심을 기준으로 좌표 갱신
-            Offset = new Point((int)ImageRect.X, (int)ImageRect.Y);
-            LastOffset = Offset;
 
             // 다시 그리기 요청
             Invalidate();
         }
 
-        private void ImageViewCCtrl_Resize(object sender, EventArgs e)
+        //#GROUP ROI#13 휠에 의해, Zoom 확대/축소 값 계산
+        private void ZoomMove(float zoom, Point zoomOrigin)
         {
-            ResizeCanas();
-            Invalidate();
-        }
+            PointF virtualOrigin = ScreenToVirtual(new PointF(zoomOrigin.X, zoomOrigin.Y));
 
-        // 창 resize ROI 업데이트
-        private void UpdateROI()
-        {
-            if (Bitmap == null || _roiRect.IsEmpty || InitialWidth == 0 || InitialHeight == 0)
+            _curZoom = Math.Max(MinZoom, Math.Min(MaxZoom, zoom));
+            if (_curZoom <= MinZoom)
                 return;
 
-            // 기존 ROI 좌표를 원본 ImageRect 기준으로 변환 (비율)
-            float roiX_ratio = (_roiRect.X - InitialStartX) / InitialWidth;
-            float roiY_ratio = (_roiRect.Y - InitialStartY) / InitialHeight;
-            float roiW_ratio = _roiRect.Width / InitialWidth;
-            float roiH_ratio = _roiRect.Height / InitialHeight;
+            PointF zoomedOrigin = VirtualToScreen(virtualOrigin);
 
-            // 새로운 ImageRect 크기에 맞춰 ROI 조정
-            _roiRect.X = (int)(ImageRect.X + roiX_ratio * ImageRect.Width);
-            _roiRect.Y = (int)(ImageRect.Y + roiY_ratio * ImageRect.Height);
-            _roiRect.Width = (int)(roiW_ratio * ImageRect.Width);
-            _roiRect.Height = (int)(roiH_ratio * ImageRect.Height);
+            float dx = zoomedOrigin.X - zoomOrigin.X;
+            float dy = zoomedOrigin.Y - zoomOrigin.Y;
 
-            // 새로운 초기 크기 갱신
-            InitialStartX = ImageRect.X;
-            InitialStartY = ImageRect.Y;
-            InitialWidth = ImageRect.Width;
-            InitialHeight = ImageRect.Height;
+            ImageRect.X -= dx;
+            ImageRect.Y -= dy;
+        }
+
+        private void ImageViewCCtrl_Resize(object sender, EventArgs e)
+        {
+            ResizeCanvas();
+            Invalidate();
         }
 
         public Rectangle GetRoiRect()
         {
-            if (Bitmap == null || _roiRect.IsEmpty)
+            if (_bitmapImage == null || _roiRect.IsEmpty)
                 return new Rectangle();
 
-            // UserControl 좌표계에서 원본 이미지 좌표계로 변환하는 비율 계산
-            float scaleX = (float)Bitmap.Width / ImageRect.Width;
-            float scaleY = (float)Bitmap.Height / ImageRect.Height;
-
-            // 변환된 ROI 좌표 계산
-            int roiX = (int)((_roiRect.X - ImageRect.X) * scaleX);
-            int roiY = (int)((_roiRect.Y - ImageRect.Y) * scaleY);
-            int roiWidth = (int)(_roiRect.Width * scaleX);
-            int roiHeight = (int)(_roiRect.Height * scaleY);
-
-            // ROI가 원본 이미지 범위를 초과하지 않도록 조정
-            roiX = Math.Max(0, roiX);
-            roiY = Math.Max(0, roiY);
-            roiWidth = Math.Min(Bitmap.Width - roiX, roiWidth);
-            roiHeight = Math.Min(Bitmap.Height - roiY, roiHeight);
-
-            if (roiWidth <= 0 || roiHeight <= 0)
-                return new Rectangle(); // 유효하지 않은 ROI
-
-            // 원본 이미지에서 ROI 부분을 추출
-            Rectangle roi = new Rectangle(roiX, roiY, roiWidth, roiHeight);
-            return roi;
+            return _roiRect;
         }
 
         //#MATCH PROP#13 템플릿 매칭 위치 입력 받는 함수
         public void AddRect(List<Rectangle> rectangles)
         {
             _rectangles = rectangles;
-
             Invalidate();
         }
 
+        //#GROUP ROI#14 키보드 이벤트 받기 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            _isCtrlPressed = keyData == Keys.Control;
+
+            if (keyData == Keys.Delete)
+            {
+                if (_selEntity != null)
+                {
+                    DeleteSelEntity();
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Control)
+                _isCtrlPressed = false;
+
+            base.OnKeyUp(e);
+        }
 
         public bool SetDiagramEntityList(List<DiagramEntity> diagramEntityList)
         {
-            _diagramEntityList = diagramEntityList;
+            //작은 roi가 먼저 선택되도록, 소팅
+            _diagramEntityList = diagramEntityList
+                                .OrderBy(r => r.EntityROI.Width * r.EntityROI.Height)
+                                .ToList();
+
             _selEntity = null;
             Invalidate();
             return true;
         }
 
-        public class DiagramEntityEventArgs : EventArgs
+        //#GROUP ROI#4 팝업 메뉴 함수 
+        #region Group Create and Break
+        private void OnCreateGroupClicked(object sender, EventArgs e)
         {
-            public EntityActionType ActionType { get; private set; }
-            public InspWindow InspWindow { get; private set; }
-            public InspWindowType WindowType { get; private set; }
+            List<InspWindow> selected = _multiSelectedEntities
+                .Where(d => d.LinkedWindow != null)
+                .Select(d => d.LinkedWindow)
+                .ToList();
 
-            public OpenCvSharp.Rect Rect { get; private set; }
+            if (selected.Count == 0)
+                return;
 
-            public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspwindow, InspWindowType windowType, Rectangle rect)
+            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.AddGroup, selected, InspWindowType.Group));
+
+            // 선택 해제
+            _multiSelectedEntities.Clear();
+            _selEntity = null;
+        }
+
+        private void OnBreakGroupClicked(object sender, EventArgs e)
+        {
+            if (_selEntity == null)
+                return;
+            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Break, _selEntity.LinkedWindow));
+        }
+
+        private void OnDeleteClicked(object sender, EventArgs e)
+        {
+            DeleteSelEntity();
+        }
+
+        private void DeleteSelEntity()
+        {
+            List<InspWindow> selected = _multiSelectedEntities
+                .Where(d => d.LinkedWindow != null)
+                .Select(d => d.LinkedWindow)
+                .ToList();
+
+            if (selected.Count > 0)
             {
-                ActionType = actionType;
-                InspWindow = inspwindow;
-                WindowType = windowType;
-                Rect = new OpenCvSharp.Rect(rect.X, rect.Y, rect.Width, rect.Height);
+                DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.DeleteList, selected));
+                return;
+            }
+
+            if (_selEntity != null)
+            {
+                InspWindow linkedWindow = _selEntity.LinkedWindow;
+                if (linkedWindow is null)
+                    return;
+
+                InspWindow group = linkedWindow.Parent;
+                if (group != null)
+                    linkedWindow = group;
+
+                DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Delete, linkedWindow));
             }
         }
+
+        #endregion
+
+
+        //#GROUP ROI#3-1 Virtual <-> Screen 좌표계 변환
+        #region 좌표계 변환
+        private PointF GetScreenOffset()
+        {
+            return new PointF(ImageRect.X, ImageRect.Y);
+        }
+
+        private Rectangle ScreenToVirtual(Rectangle screenRect)
+        {
+            PointF offset = GetScreenOffset();
+            return new Rectangle(
+                (int)((screenRect.X - offset.X) / _curZoom + 0.5f),
+                (int)((screenRect.Y - offset.Y) / _curZoom + 0.5f),
+                (int)(screenRect.Width / _curZoom + 0.5f),
+                (int)(screenRect.Height / _curZoom + 0.5f));
+        }
+
+        private Rectangle VirtualToScreen(Rectangle virtualRect)
+        {
+            PointF offset = GetScreenOffset();
+            return new Rectangle(
+                (int)(virtualRect.X * _curZoom + offset.X + 0.5f),
+                (int)(virtualRect.Y * _curZoom + offset.Y + 0.5f),
+                (int)(virtualRect.Width * _curZoom + 0.5f),
+                (int)(virtualRect.Height * _curZoom + 0.5f));
+        }
+
+        private PointF ScreenToVirtual(PointF screenPos)
+        {
+            PointF offset = GetScreenOffset();
+            return new PointF(
+                (screenPos.X - offset.X) / _curZoom,
+                (screenPos.Y - offset.Y) / _curZoom);
+        }
+
+        private PointF VirtualToScreen(PointF virtualPos)
+        {
+            PointF offset = GetScreenOffset();
+            return new PointF(
+                virtualPos.X * _curZoom + offset.X,
+                virtualPos.Y * _curZoom + offset.Y);
+        }
+        #endregion
     }
+
+    #region EventArgs
+    public class DiagramEntityEventArgs : EventArgs
+    {
+        public EntityActionType ActionType { get; private set; }
+        public InspWindow InspWindow { get; private set; }
+        public InspWindowType WindowType { get; private set; }
+        public List<InspWindow> InspWindowList { get; private set; }
+
+        public OpenCvSharp.Rect Rect { get; private set; }
+
+        public OpenCvSharp.Point OffsetMove { get; private set; }
+        public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspWindow)
+        {
+            ActionType = actionType;
+            InspWindow = inspWindow;
+        }
+
+        public DiagramEntityEventArgs(EntityActionType actionType, InspWindow inspWindow, InspWindowType windowType, Rectangle rect, Point offsetMove)
+        {
+            ActionType = actionType;
+            InspWindow = inspWindow;
+            WindowType = windowType;
+            Rect = new OpenCvSharp.Rect(rect.X, rect.Y, rect.Width, rect.Height);
+            OffsetMove = new OpenCvSharp.Point(offsetMove.X, offsetMove.Y);
+        }
+
+        public DiagramEntityEventArgs(EntityActionType actionType, List<InspWindow> inspWindowList, InspWindowType windowType = InspWindowType.None)
+        {
+            ActionType = actionType;
+            InspWindow = null;
+            InspWindowList = inspWindowList;
+            WindowType = windowType;
+        }
+    }
+
+    #endregion
+
 }

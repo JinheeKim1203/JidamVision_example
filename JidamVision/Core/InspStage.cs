@@ -2,6 +2,7 @@
 using JidamVision.Inspect;
 using JidamVision.Setting;
 using JidamVision.Teach;
+using JidamVision.Util;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -14,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Windows.Forms;
 
 namespace JidamVision.Core
 {
@@ -75,6 +77,8 @@ namespace JidamVision.Core
 
         public bool Initialize()
         {
+            SLogger.Write("InspStage 초기화!");
+
             _imageSpace = new ImageSpace();
             _previewImage = new PreviewImage();
             _inspWorker = new InspWorker();
@@ -301,8 +305,9 @@ namespace JidamVision.Core
 
         private void InitInspWindow()
         {
-            _inspWindow = new InspWindow();
+            SLogger.Write("검사 속성창 초기화!");
 
+            _inspWindow = new InspWindow();
             var propForm = MainForm.GetDockForm<PropertiesForm>();
             if (propForm != null)
             {
@@ -325,6 +330,20 @@ namespace JidamVision.Core
             UpdateDiagramEntity();
         }
 
+        //입력된 윈도우 이동
+        public void MoveInspWindow(InspWindow inspWindow, OpenCvSharp.Point offset)
+        {
+            if (inspWindow == null)
+                return;
+
+            //그룹이 있다면 해당 그룹을 이동
+            GroupWindow group = (GroupWindow)inspWindow.Parent;
+            if (group != null)
+                group.OffsetMove(offset);
+            else
+                inspWindow.OffsetMove(offset);
+        }
+
         //#MODEL#10 기존 ROI 수정되었을때, 그 정보를 InspWindow에 반영
         public void ModifyInspWindow(InspWindow inspWindow, Rect rect)
         {
@@ -338,6 +357,49 @@ namespace JidamVision.Core
         public void DelInspWindow(InspWindow inspWindow)
         {
             _model.DelInspWindow(InspWindow);
+            UpdateDiagramEntity();
+        }
+
+        public void DelInspWindow(List<InspWindow> inspWindowList)
+        {
+            _model.DelInspWindowList(inspWindowList);
+            UpdateDiagramEntity();
+        }
+
+        //GroupWindow 생성
+        public void CreateGroupWindow(List<InspWindow> inspWindowList)
+        {
+            if (_model is null)
+                return;
+
+            _model.AddGroupWindow(inspWindowList);
+
+            UpdateDiagramEntity();
+        }
+
+        //GroupWindow 해제
+        public void BreakGroupWindow(InspWindow window)
+        {
+            if (window is null)
+                return;
+
+            GroupWindow group = null;
+            if (window.InspWindowType == InspWindowType.Group)
+            {
+                group = (GroupWindow)window;
+            }
+            else
+            {
+                group = (GroupWindow)window.Parent;
+            }
+
+            if (group == null)
+            {
+                MessageBox.Show("그룹윈도우가 아닙니다!");
+                return;
+            }
+
+            _model.BreakGroupWindow(group);
             UpdateDiagramEntity();
         }
 
@@ -361,14 +423,21 @@ namespace JidamVision.Core
         //#MODEL SAVE#3 Mainform에서 호출되는 모델 열기와 저장 함수
         public void LoadModel(string filePath)
         {
+            SLogger.Write($"모델 로딩:{filePath}");
+
             _model = _model.Load(filePath);
             UpdateDiagramEntity ();
         }
 
-        public void SaveModel()
+        public void SaveModel(string filePath)
         {
+            SLogger.Write($"모델 저장:{filePath}");
+
             //입력 경로가 없으면 현재 모델 저장
-            Global.Inst.InspStage.CurModel.Save();
+            if (string.IsNullOrEmpty(filePath))
+                Global.Inst.InspStage.CurModel.Save();
+            else
+                Global.Inst.InspStage.CurModel.SaveAs(filePath);
         }
     }
 }

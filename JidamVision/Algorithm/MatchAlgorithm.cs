@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace JidamVision.Algorithm
 {
+    //#MATCH PROP#2 MatchAlgorithm 클래스 추가, InspAlgorithm상속 받기
+    //템플릿 매칭에 사용될 속성과 함수 정의
     public class MatchAlgorithm : InspAlgorithm
     {
-
+        //템플릿 매칭용 이미지(찾을 이미지)
         private Mat _templateImage;
 
         //찾을 이미지의 매칭율

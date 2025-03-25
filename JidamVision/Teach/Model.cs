@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Common.Util.Helpers;
 using JidamVision.Core;
 using OpenCvSharp;
+using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace JidamVision.Teach
 {
@@ -24,6 +26,7 @@ namespace JidamVision.Teach
         public string ModelPath { get; set; } = "";
 
         //#MODEL#1 InspStage에 있던 InspWindowList 위치를 이곳으로 변경
+        [XmlElement("InspWindow")]
         public List<InspWindow> InspWindowList { get; set; }
 
         public Model() 
@@ -49,6 +52,62 @@ namespace JidamVision.Teach
                 return true;
             }
             return false;
+        }
+        public bool DelInspWindowList(List<InspWindow> inspWindowList)
+        {
+            int before = InspWindowList.Count;
+            InspWindowList.RemoveAll(w => inspWindowList.Contains(w));
+            return InspWindowList.Count < before;
+        }
+
+        //#GROUP ROI#1 GroupWindow를 만들어 모델에 추가
+        public GroupWindow AddGroupWindow(List<InspWindow> inspWindowList)
+        {
+            bool hasParentWindow = inspWindowList.Any(m => m.Parent != null);
+            if (hasParentWindow)
+            {
+                MessageBox.Show("이미 그룹에 속한 윈도우 입니다!");
+                return null;
+            }
+
+            GroupWindow groupWindow = (GroupWindow)InspWindowFactory.Inst.Create(InspWindowType.Group);
+            if (groupWindow is null)
+                return null;
+
+            foreach (var inspWindow in inspWindowList)
+            {
+                //그룹멤버로 추가하고, 전체리스트에서는 제거
+                inspWindow.Parent = groupWindow;
+                groupWindow.AddMember(inspWindow);
+                DelInspWindow(inspWindow);
+            }
+
+            //그룹을 전체리스트에 추가
+            InspWindowList.Add(groupWindow);
+
+            return groupWindow;
+        }
+
+        //#GROUP ROI#2 그룹해제
+        public bool BreakGroupWindow(GroupWindow groupWindow)
+        {
+            if (groupWindow is null)
+                return false;
+
+            //전체 리스트에서 그룹을 제거
+            if (InspWindowList.Contains(groupWindow))
+            {
+                InspWindowList.Remove(groupWindow);
+            }
+
+            //그룹의 개별 윈도우를 전체 리스트에 추가
+            foreach (var inspWindow in groupWindow.Members)
+            {
+                inspWindow.Parent = null;
+                InspWindowList.Add(inspWindow);
+            }
+
+            return true;
         }
 
         //#MODEL SAVE#2 모델 생성,열기,저장을 위한 함수 구현

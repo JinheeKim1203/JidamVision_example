@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using JidamVision.Algorithm;
 using OpenCvSharp;
 using JidamVision.Core;
-using System.Drawing;
 using System.Security.Policy;
+using System.Drawing;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -38,9 +38,15 @@ namespace JidamVision.Teach
         //InspAlgorithm으로 추상화하여 리스트로 관리하도록 
 
         //#MODEL SAVE#6 Xml Serialize를 위해서, Element을 명확하게 알려줘야 함
-        //[XmlElement("InspAlgorithm")]
+        [XmlElement("InspAlgorithm")]
 
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
+
+        //부모-자식 관계를 위한 변수 추가
+        public InspWindow Parent { get; set; }
+
+        [XmlElement("ChildWindow")]
+        public List<InspWindow> Children { get; set; } = new List<InspWindow>();
 
         public InspWindow()
         {
@@ -119,25 +125,73 @@ namespace JidamVision.Teach
         //#ABSTRACT ALGORITHM#11 알고리즘을 리스트로 관리하므로, 필요한 타입의 알고리즘을 찾는 함수
         public InspAlgorithm FindInspAlgorithm(InspectType inspType)
         {
-            foreach (var algorithm in AlgorithmList)
-            {
-                if (algorithm.InspectType == inspType)
-                    return algorithm;
-            }
+            //foreach (var algorithm in AlgorithmList)
+            //{
+            //    if (algorithm.InspectType == inspType)
+            //        return algorithm;
+            //}
 
-            return null;
+            //return null;
+
+            return AlgorithmList.Find(algo => algo.InspectType == inspType);
         }
 
         //#ABSTRACT ALGORITHM#12 클래스 내에서, 인자로 입력된 타입의 알고리즘을 검사하거나,
         ///모든 알고리즘을 검사하는 옵션을 가지는 검사 함수
-        public bool DoInspect(InspectType inspType)
+        public virtual bool DoInspect(InspectType inspType)
         {
             foreach (var inspAlgo in AlgorithmList)
             {
                 if (inspAlgo.InspectType == inspType || inspAlgo.InspectType == InspectType.InspNone)
                     inspAlgo.DoInspect();
             }
+
             return true;
         }
+
+        public virtual bool OffsetMove(OpenCvSharp.Point offset)
+        {
+            Rect windowRect = WindowArea;
+            windowRect.X += offset.X;
+            windowRect.Y += offset.Y;
+            WindowArea = windowRect;
+            return true;
+        }
+
+        #region 부모 - 자식 관계 관리 메서드 추가
+
+        public void AddChild(InspWindow child)
+        {
+            if (child == null || Children.Contains(child))
+                return;
+
+            child.Parent = this;
+            Children.Add(child);
+        }
+
+        public bool RemoveChild(InspWindow child)
+        {
+            if (child == null || !Children.Contains(child))
+                return false;
+
+            child.Parent = null;
+            if (!Children.Remove(child))
+                return false;
+
+            return true;
+        }
+
+        public InspWindow GetRoot()
+        {
+            InspWindow root = this;
+            while (root.Parent != null)
+                root = root.Parent;
+
+            return root;
+        }
+
+
+        #endregion
+
     }
 }

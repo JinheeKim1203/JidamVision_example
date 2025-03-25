@@ -39,7 +39,7 @@ namespace JidamVision.Setting
             PathSetting pathSetting = new PathSetting();
             AddTabControl(pathSetting, "Path");
 
-            //경로 설정 페이지 추가
+            //네트워크 설정 페이지 추가
             NetworkSetting networkSetting = new NetworkSetting();
             AddTabControl(networkSetting, "Network");
 

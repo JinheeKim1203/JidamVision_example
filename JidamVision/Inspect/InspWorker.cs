@@ -11,6 +11,13 @@ using JidamVision;
 
 namespace JidamVision.Inspect
 {
+    /*
+    #INSP WORKER# - <<<검사 알고리즘 통합 및 검사 관리 클래스 추가>>> 
+    검사 관리 클래스 : 전체 검사 또는 개별 검사 동작
+    검사 알고리즘 추상화
+     */
+
+    //검사 관련 처리 클래스
     public class InspWorker
     {
         public InspWorker()

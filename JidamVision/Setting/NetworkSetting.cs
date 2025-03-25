@@ -1,5 +1,6 @@
 ﻿using JidamVision.Core;
 using JidamVision.Grab;
+using JidamVision.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,6 +41,9 @@ namespace JidamVision.Setting
             SettingXml.Inst.IpAddress = txtIpAddress.Text;
             //환경설정 저장
             SettingXml.Save();
+
+            SLogger.Write($"네트워크 설정 저장");
+
         }
 
         private void btnApply_Click(object sender, EventArgs e)

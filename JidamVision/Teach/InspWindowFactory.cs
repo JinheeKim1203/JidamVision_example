@@ -22,23 +22,27 @@ namespace JidamVision.Teach
             }
         }
 #endregion
+
         //같은 타입의 일련번호 관리를 위한 딕셔너리
         private Dictionary<string, int> _windowTypeNo = new Dictionary<string, int>();
 
-        private InspWindowFactory()
-        {
-
-        }
+        private InspWindowFactory() { }
 
         //InspWindow를 생성하기 위해, 타입을 입력받아, 생성된 InspWindow 반환
-        public InspWindow Create(InspWindowType windowtype)
+        public InspWindow Create(InspWindowType windowType)
         {
             string name, prefix;
-            if (!GetWindowName(windowtype, out name, out prefix))
+            if (!GetWindowName(windowType, out name, out prefix))
                 return null;
 
-            InspWindow inspwindow = new InspWindow(windowtype, name);
-            if (inspwindow is null)
+            InspWindow inspWindow = null;
+
+            if (InspWindowType.Group == windowType)
+                inspWindow = new GroupWindow(name);
+            else
+                inspWindow = new InspWindow(windowType, name);
+
+            if (inspWindow is null)
                 return null;
 
             if (!_windowTypeNo.ContainsKey(name))
@@ -47,11 +51,11 @@ namespace JidamVision.Teach
             int curID = _windowTypeNo[name];
             curID++;
 
-            inspwindow.UID = string.Format("{0}_{1:D6}", prefix, curID);
+            inspWindow.UID = string.Format("{0}_{1:D6}", prefix, curID);
 
             _windowTypeNo[name] = curID;
 
-            return inspwindow;
+            return inspWindow;
 
         }
 

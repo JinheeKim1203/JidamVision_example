@@ -14,6 +14,14 @@ using JidamVision.Algorithm;
 
 namespace JidamVision.Property
 {
+    /*
+    #MATCH PROP# - <<<템플릿 매칭 개발>>> 
+    설정된 ROI 이미지를 이용해, 유사한 이미지를 대상 이미지에서 찾는다.
+    [확장영역]은 현재 구현되지 않았음
+    [매칭스코어]는 템플릿 매칭 결과가 입력된 스코어보다 큰것만을 유효한 것으로 판단
+    [매칭갯수]는 찾고자 하는 패턴의 갯수를 입력
+     */
+
     public partial class MatchInspProp : UserControl
     {
         public MatchInspProp()
